@@ -1,0 +1,22 @@
+*** Update File: components/AuthScreen.tsx
+--- original
++++ modified
+
+/* --- original content (truncated) --- */
+
+import React, { useState } from 'react';
+import './AuthScreen.css';
+// Reusable component for the ornate, steampunk-style frame.
+interface OrnateFrameProps {
+    children: React.ReactNode;
+    classN
+...
+/* --- modified preview (truncated) --- */
+
+import React, { useState } from 'react';
+import './AuthScreen.css';
+// Reusable component for the ornate, steampunk-style frame.
+interface OrnateFrameProps {
+    children: React.ReactNode;
+    classN
+...

@@ -1,0 +1,11 @@
+{
+  "title": "Demo Workspace",
+  "subtitle": "Manifest-driven demo",
+  "status": "Demo",
+  "document": {
+    "title": "Demo Tale",
+    "blocks": [
+      { "type": "paragraph", "text": "This is a demo block." }
+    ]
+  }
+}

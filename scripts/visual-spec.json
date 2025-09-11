@@ -1,0 +1,11 @@
+{
+  "url": "http://127.0.0.1:5173/",
+  "outDir": "./visual-out",
+  "viewport": { "width": 1280, "height": 900 },
+  "steps": [
+  { "type": "screenshot", "filename": "before.png", "fullPage": true },
+  { "type": "wait", "ms": 800 },
+  { "type": "screenshot", "filename": "after.png", "fullPage": true },
+  { "type": "html-dump", "filename": "page-debug.html" }
+  ]
+}

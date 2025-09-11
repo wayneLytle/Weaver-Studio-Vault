@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weavers-studio-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: weavers-studio-api
+  template:
+    metadata:
+      labels:
+        app: weavers-studio-api
+    spec:
+      containers:
+      - name: api
+        image: weavers-studio-api:latest
+        ports:
+        - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weavers-studio-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: weavers-studio-frontend
+  template:
+    metadata:
+      labels:
+        app: weavers-studio-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: weavers-studio-frontend:latest
+        ports:
+        - containerPort: 5173

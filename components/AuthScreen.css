@@ -1,0 +1,75 @@
+/* Crossfade background layers for AuthScreen */
+.auth-bg-layer {
+  pointer-events: none;
+}
+/* Vault Door Layout & Light Overlays for Weaver Studio Vault */
+
+@keyframes dimLeft {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes dimRight {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.4; }
+}
+
+.light-overlay.left {
+  position: absolute;
+  top: 100px;
+  left: 25%;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,0.2), rgba(0,0,0,0.4));
+  animation: dimLeft 9s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.light-overlay.right {
+  position: absolute;
+  top: 100px;
+  left: 75%;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,0.2), rgba(0,0,0,0.4));
+  animation: dimRight 7s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vault-logo {
+  /* Logo bar at top edge of vault door */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vault-buttons, .vault-buttons-secondary {
+  /* Button groups under lights */
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: center;
+}
+
+@media (max-width: 1200px) {
+  .vault-logo {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+}
+
+/* Accessibility: visually hidden for ARIA labels if needed */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}

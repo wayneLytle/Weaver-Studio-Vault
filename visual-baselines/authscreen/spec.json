@@ -1,0 +1,114 @@
+{
+  "unit": "percentage",
+  "unitDescription": "Positions and coordinates are percentages (0-100) relative to the canvasSize (1920x1080). Use top/left/right/bottom as percentage distances from the corresponding edge.",
+  "pathResolution": "paths are resolved relative to this spec file's directory (visual-baselines/authscreen)",
+  "grid": {
+    "columns": 21,
+    "rows": 21,
+    "canvasSize": "1920x1080",
+    "origin": "top-left",
+    "snap": true
+  },
+  "outDir": "visual-out/authscreen",
+  "viewport": { "width": 2016, "height": 1152 },
+  "baselines": {
+    "before": "AuthScreenBG.png",
+    "review": "AuthScreenReviewReference.png"
+  },
+  "background": {
+    "image": "AuthScreenBG.png",
+    "theme": "steampunk",
+    "style": "dark bricks, vault door, pilasters, embedded banner"
+  },
+  "referenceImage": "AuthScreenReviewReference.png",
+  "buttons": {
+    "login": {
+      "label": "LOGIN",
+      "image": "LoginButton.svg",
+      "selector": "button[aria-label='LOGIN']",
+      "position": { "top": 6.07, "bottom": 6.65, "left": 15.94, "right": 18.17 },
+      "hoverEffect": "amberGlow",
+      "clickEffect": "flipBottomToTop",
+      "reveal": "textEntryField"
+    },
+    "signUp": {
+      "label": "SIGN UP",
+      "image": "SignUpButton.svg",
+      "selector": "button[aria-label='SIGN UP']",
+      "position": { "top": 6.72, "bottom": 7.3, "left": 15.94, "right": 18.17 },
+      "hoverEffect": "amberGlow",
+      "clickEffect": "flipTopDown",
+      "reveal": "enterButton"
+    },
+    "help": {
+      "label": "HELP",
+      "image": "HelpButton.svg",
+      "selector": "button[aria-label='HELP']",
+      "position": { "top": 11.34, "bottom": 11.75, "left": 0.07, "right": 1.65 },
+      "hoverEffect": "amberGlow"
+    },
+    "about": {
+      "label": "ABOUT",
+      "image": "AboutButton.svg",
+      "selector": "button[aria-label='ABOUT']",
+      "position": { "top": 11.34, "bottom": 11.75, "left": 1.68, "right": 3.27 },
+      "hoverEffect": "amberGlow"
+    },
+    "enter": {
+      "label": "ENTER",
+      "image": "EnterButton.svg",
+      "selector": "button[aria-label='ENTER']",
+      "position": { "top": 6.72, "bottom": 7.3, "left": 15.94, "right": 18.17 },
+      "clickEffect": "depress",
+      "transition": "fadeToNextScreen"
+    }
+  },
+  "lights": {
+    "leftColumn": { "center": { "x": 2.38, "y": 3.5 }, "effect": "pulseGlow" },
+    "leftDoor": { "center": { "x": 2, "y": 7.53 }, "effect": "pulseGlow" },
+    "rightColumn": { "center": { "x": 2, "y": 13.59 }, "effect": "pulseGlow" },
+    "rightDoor": { "center": { "x": 2.5, "y": 17.65 }, "effect": "pulseGlow" }
+  },
+  "interactions": {
+    "flow": [
+      "User opens app",
+      "Presented with auth screen",
+      "Clicks LOGIN -> reveals text entry",
+      "SIGN UP flips to ENTER",
+      "User types name -> clicks ENTER",
+      "ENTER depresses -> screen fades to next image"
+    ]
+  },
+  "steps": [
+    { "type": "screenshot", "filename": "before.png", "fullPage": true },
+  { "type": "click", "selector": "button[aria-label='LOGIN']", "postWait": 600 },
+    { "type": "screenshot", "filename": "after-login.png", "fullPage": true },
+    {
+      "type": "compare",
+      "baseline": "./visual-baselines/authscreen/AuthScreenBG.png",
+      "target": "before.png",
+      "out": "diff-before.png",
+      "tolerance": 0.12,
+      "ignoreRects": [ { "x": 0, "y": 0, "width": 6, "height": 8, "unit": "percent" } ]
+    },
+    { "type": "type", "selector": "input[aria-label='Enter Name']", "text": "Test User", "postWait": 200 },
+    { "type": "press", "selector": "input[aria-label='Enter Name']", "key": "Enter", "postWait": 800 },
+    { "type": "screenshot", "filename": "after-enter.png", "fullPage": true },
+    {
+      "type": "compare",
+      "baseline": "./visual-baselines/authscreen/AuthScreenReviewReference.png",
+      "target": "after-enter.png",
+      "out": "diff-after-enter.png",
+      "tolerance": 0.12,
+      "ignoreRects": [ { "x": 0, "y": 0, "width": 6, "height": 8, "unit": "percent" } ]
+    },
+    { "type": "html-dump", "filename": "page-debug.html" }
+  ],
+  "notes": {
+    "units": "positions are percentages (0-100) relative to the canvasSize 1920x1080",
+    "tolerance": "pixel-diff threshold default 0.12 (adjustable per test)",
+    "runner": "use scripts/visual-runner.cjs <path-to-spec>",
+    "buttons": "Button assets in this folder are SVGs and may be referenced by the runner; background and review baselines are expected as PNGs for pixel comparisons.",
+    "compareBehavior": "Runner compares the generated screenshots against the files under 'baselines'. Provide PNG baselines when you expect pixel diffs; the runner will write outputs to the spec 'outDir'."
+  }
+}

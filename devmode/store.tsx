@@ -1,0 +1,3 @@
+// Runtime stub for devmode store. Archival copy exists in do-not-use/devmode/store.tsx
+export function DevProvider({ children }: any) { return children; }
+export function useDev() { return { state: { enabled: false, elements: [], selection: [], events: [], config: { grid: 8, snap: true }, ui: {} }, toggle() {}, setEnabled() {}, addElement() {}, updateElement() {}, deleteElement() {}, select() {}, logEvent() {}, setConfig() {}, openInsert() {}, closeInsert() {}, undo() {}, redo() {}, exportManifest() { return { version: '1.0.0', pageId: 'none', timestamp: new Date().toISOString(), elements: [], events: [], meta: {} }; }, clearSession() {} }; }

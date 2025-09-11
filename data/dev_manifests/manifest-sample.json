@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "pageId": "home",
+  "timestamp": "2025-09-09T16:00:00.000Z",
+  "elements": [
+    {
+      "id": "dev-login",
+      "type": "custom",
+      "layout": { "x": 100, "y": 200, "w": 300, "h": 60 }
+    }
+  ],
+  "events": [
+    {
+      "id": "evt-1",
+      "ts": "2025-09-09T16:00:01.000Z",
+      "actor": "dev",
+      "op": "update",
+      "targetId": "dev-login",
+      "diff": { "oldText": "LOGIN", "text": "START" }
+    },
+    {
+      "id": "evt-2",
+      "ts": "2025-09-09T16:00:05.000Z",
+      "actor": "dev",
+      "op": "insert",
+      "targetId": "dev-newbtn",
+      "diff": { "label": "GOGO", "kind": "button" }
+    }
+  ],
+  "meta": { "grid": 8, "enabled": true, "selection": ["dev-login"] }
+}
