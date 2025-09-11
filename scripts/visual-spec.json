@@ -1,11 +1,13 @@
 {
-  "url": "http://127.0.0.1:5173/",
+  "url": "http://127.0.0.1:5174/",
   "outDir": "./visual-out",
-  "viewport": { "width": 1280, "height": 900 },
+  "viewport": { "width": 2016, "height": 1152 },
   "steps": [
   { "type": "screenshot", "filename": "before.png", "fullPage": true },
   { "type": "wait", "ms": 800 },
   { "type": "screenshot", "filename": "after.png", "fullPage": true },
-  { "type": "html-dump", "filename": "page-debug.html" }
+  { "type": "html-dump", "filename": "page-debug.html" },
+  { "type": "compare", "baseline": "visual-baselines/authscreen/AuthScreenBG.png", "target": "before.png", "out": "diff-before.png" },
+  { "type": "compare", "baseline": "visual-baselines/authscreen/AuthScreenBG.png", "target": "after.png", "out": "diff-after.png" }
   ]
 }

@@ -1,9 +1,9 @@
-const { chromium } = require('playwright');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const { PNG } = require('pngjs');
-const pixelmatch = require('pixelmatch');
+import { chromium } from 'playwright';
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { PNG } from 'pngjs';
+import pixelmatch from 'pixelmatch';
 
 function waitForServer(url, timeoutMs = 30000, interval = 500) {
   return new Promise((resolve, reject) => {
@@ -100,7 +100,7 @@ async function run(specPath, opts = {}) {
   return results;
 }
 
-if (require.main === module) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   const arg = process.argv[2] || './scripts/visual-spec.json';
   const opts = { headed: process.argv.includes('--headed') };
   run(arg, opts).then((res) => {
