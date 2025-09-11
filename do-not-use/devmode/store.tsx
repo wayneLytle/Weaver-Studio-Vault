@@ -34,13 +34,6 @@ function reducer(state: DevState, action: Action): DevState {
 
 const DevContext = createContext<any>(null);
 
-export function DevProvider({ children }: { children: React.ReactNode }) {
-	const [state, dispatch] = useReducer(reducer, initialState);
-	const api = { state, toggle: () => {}, setEnabled: (v: boolean) => {}, addElement: (e: DevElement) => {}, updateElement: (id: string, patch: Partial<DevElement>) => {}, deleteElement: (id: string) => {}, select: (ids: string[]) => {}, logEvent: (ev: DevEvent) => {}, setConfig: (cfg: any) => {}, openInsert: (pos: { x: number; y: number }) => {}, closeInsert: () => {}, undo: () => {}, redo: () => {}, exportManifest: (): Manifest => ({ version: '1.0.0', pageId: 'home', timestamp: new Date().toISOString(), elements: state.elements, events: state.events, meta: { grid: state.config.grid, enabled: state.enabled, selection: state.selection } }), clearSession: () => {} };
-	try { (window as any).__weaver_dev = api; } catch (e) {}
-	return <DevContext.Provider value={api}>{children}</DevContext.Provider>;
-}
-
-export function useDev() {
-	return useContext(DevContext);
-}
+// removed
+export function DevProvider({ children }: { children: React.ReactNode }) { return <>{children}</>; }
+export function useDev() { return {} as any; }

@@ -42,11 +42,5 @@ export interface DevEvent {
 	diff?: any;
 }
 
-export interface Manifest {
-	version: string;
-	pageId: string;
-	timestamp: string;
-	elements: DevElement[];
-	events: DevEvent[];
-	meta?: any;
-}
+// removed
+export interface Manifest { }

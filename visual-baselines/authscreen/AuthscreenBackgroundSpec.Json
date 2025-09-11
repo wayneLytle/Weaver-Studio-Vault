@@ -17,73 +17,7 @@
     "style": "dark bricks, vault door, pilasters, embedded banner"
   },
   "referenceImage": "authscreen/AuthscreenReviewReference.svg",
-  "buttons": {
-    "login": {
-      "label": "LOGIN",
-      "image": "authscreen/LoginButton.svg",
-      "selector": "button[aria-label='LOGIN']",
-      "position": {
-        "top": 6.07,
-        "bottom": 6.65,
-        "left": 15.94,
-        "right": 18.17
-      },
-      "hoverEffect": "amberGlow",
-      "clickEffect": "flipBottomToTop",
-      "reveal": "textEntryField"
-    },
-    "signUp": {
-      "label": "SIGN UP",
-      "image": "authscreen/SignUpButton.svg",
-      "selector": "button[aria-label='SIGN UP']",
-      "position": {
-        "top": 6.72,
-        "bottom": 7.3,
-        "left": 15.94,
-        "right": 18.17
-      },
-      "hoverEffect": "amberGlow",
-      "clickEffect": "flipTopDown",
-      "reveal": "enterButton"
-    },
-    "help": {
-      "label": "HELP",
-      "image": "authscreen/HelpButton.svg",
-      "selector": "button[aria-label='HELP']",
-      "position": {
-        "top": 11.34,
-        "bottom": 11.75,
-        "left": 0.07,
-        "right": 1.65
-      },
-      "hoverEffect": "amberGlow"
-    },
-    "about": {
-      "label": "ABOUT",
-      "image": "authscreen/AboutButton.svg",
-      "selector": "button[aria-label='ABOUT']",
-      "position": {
-        "top": 11.34,
-        "bottom": 11.75,
-        "left": 1.68,
-        "right": 3.27
-      },
-      "hoverEffect": "amberGlow"
-    },
-    "enter": {
-      "label": "ENTER",
-      "image": "authscreen/EnterButton.svg",
-      "selector": "button[aria-label='ENTER']",
-      "position": {
-        "top": 6.72,
-        "bottom": 7.3,
-        "left": 15.94,
-        "right": 18.17
-      },
-      "clickEffect": "depress",
-      "transition": "fadeToNextScreen"
-    }
-  },
+  "buttons": {},
   "lights": {
     "leftColumn": {
       "center": {
@@ -114,14 +48,5 @@
       "effect": "pulseGlow"
     }
   },
-  "interactions": {
-    "flow": [
-      "User opens app",
-      "Presented with auth screen",
-      "Clicks LOGIN → reveals text entry",
-      "SIGN UP flips to ENTER",
-      "User types name → clicks ENTER",
-      "ENTER depresses → screen fades to next image"
-    ]
-  }
+  "interactions": {}
 }

@@ -1,9 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { DevProvider } from '../do-not-use/devmode/store';
-import DevToggle from '../do-not-use/devmode/DevToggle';
-import LogChangesPanel from '../do-not-use/devmode/LogChangesPanel';
+import { DevProvider, DevToggle, LogChangesPanel } from './test-helpers/devmode-stub';
 
 function Host() {
   return (

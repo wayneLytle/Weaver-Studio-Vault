@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { DevProvider } from '../do-not-use/devmode/store';
-import DevOverlay from '../do-not-use/devmode/DevOverlay';
+import { DevProvider, DevOverlay } from './test-helpers/devmode-stub';
 
 function TestHost() {
   return (

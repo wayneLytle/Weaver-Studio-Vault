@@ -18,6 +18,6 @@ function uuid() {
 }
 
 export default function DevOverlay() {
-	// full archival content omitted for brevity in the archive copy here
+	// removed
 	return null as any;
 }

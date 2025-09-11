@@ -2,9 +2,7 @@ import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { waitFor } from '@testing-library/react';
-import { DevProvider } from '../do-not-use/devmode/store';
-import DevOverlay from '../do-not-use/devmode/DevOverlay';
-import InsertShapeModal from '../do-not-use/devmode/InsertShapeModal';
+import { DevProvider, DevOverlay, InsertShapeModal } from './test-helpers/devmode-stub';
 
 function Host() {
   return (

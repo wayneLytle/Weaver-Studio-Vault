@@ -3,9 +3,7 @@ import React, { useState, useEffect } from 'react';
 import AuthScreen from './components/AuthScreen';
 import MainScreen from './components/MainScreen';
 import InsertComponentNameHere from './components/InsertComponentNameHere';
-// Dev mode components moved to do-not-use; runtime UI removed to silence Dev Mode.
-// Archived components remain in the repo under do-not-use/devmode if needed.
-import { DevProvider } from './do-not-use/devmode/store';
+// Dev mode runtime UI removed (archival copies were previously stored separately)
 
 // Image URLs for backgrounds - Switched to a different host to resolve loading issues.
 const AUTH_BG_URL = '/assets/backgrounds/vault2.361Z.png'; // Steampunk vault door
@@ -43,7 +41,6 @@ const App: React.FC = () => {
     };
 
     return (
-    <DevProvider>
         <main
             style={backgroundStyle}
             // Using w-full instead of w-screen to avoid potential layout issues
@@ -64,9 +61,7 @@ const App: React.FC = () => {
                     */
                 )}
             </div>
-        </main>
-    {/* Dev UI removed from runtime. See do-not-use/devmode for archived components. */}
-    </DevProvider>
+    </main>
     );
 };
 
