@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2025-09-11T11:17:27.862Z",
+  "results": [
+    {
+      "name": "before",
+      "baseline": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-baselines\\authscreen\\AuthScreenBG.png",
+      "target": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\authscreen\\before.png",
+      "diffImage": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\authscreen\\diff-before.png",
+      "result": {
+        "code": 1,
+        "diffPixels": 67299,
+        "out": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\authscreen\\diff-before.png"
+      }
+    },
+    {
+      "name": "after-enter",
+      "baseline": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-baselines\\authscreen\\AuthScreenReviewReference.png",
+      "target": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\authscreen\\after-enter.png",
+      "diffImage": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\authscreen\\diff-after-enter.png",
+      "result": {
+        "code": 1,
+        "diffPixels": 528006,
+        "out": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\authscreen\\diff-after-enter.png"
+      }
+    }
+  ]
+}

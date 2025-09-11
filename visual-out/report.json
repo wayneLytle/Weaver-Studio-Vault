@@ -1,0 +1,34 @@
+[
+  {
+    "baseline": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-baselines\\authscreen\\AuthScreenBG.png",
+    "target": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\before.png",
+    "result": {
+      "ok": false,
+      "reason": "dimension-mismatch",
+      "a": {
+        "w": 2016,
+        "h": 1152
+      },
+      "b": {
+        "w": 1475,
+        "h": 900
+      }
+    }
+  },
+  {
+    "baseline": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-baselines\\authscreen\\AuthScreenBG.png",
+    "target": "C:\\Users\\lytle\\OneDrive\\Desktop\\Weavers Studio Entry\\visual-out\\after.png",
+    "result": {
+      "ok": false,
+      "reason": "dimension-mismatch",
+      "a": {
+        "w": 2016,
+        "h": 1152
+      },
+      "b": {
+        "w": 1482,
+        "h": 900
+      }
+    }
+  }
+]
