@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@700&display=swap');
+
+.vault-title {
+  font-family: var(--vault-title-font, 'Marcellus'), 'Cinzel Decorative', 'Cinzel', 'Cormorant SC', 'Playfair Display SC', serif;
+  font-weight: var(--vault-title-weight, 800);
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  font-size: clamp(2.2rem, 4.5vw + 0.2rem, 3.6rem);
+  text-wrap: balance;
+
+  /* Layer 1: Brass fill | Layer 2: subtle moving sheen (clipped to text) */
+  background-image:
+    linear-gradient(
+      180deg,
+      #f3e3af 0%,   /* lighter warm gold */
+      #e0c07a 40%,  /* warmer mid */
+      #c89a4e 62%,  /* bronze core */
+      #b9853b 78%,  /* deeper amber */
+      #996b2a 100%  /* warm bronze base */
+    ),
+    linear-gradient(
+      60deg,
+      rgba(255,255,255,0) 40%,
+      rgba(255,255,255,0.22) 50%,
+      rgba(255,255,255,0) 60%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 100% 100%, 220% 100%;
+  background-position: center, -160% 0%;
+  animation: vaultSheen 12s linear infinite;
+  will-change: background-position;
+
+  -webkit-text-stroke: 2px #0b0906;
+  text-shadow:
+    0 0 10px rgba(224,200,122,0.22),
+    0 1px 0 rgba(255,255,255,0.25),
+    0 2px 2px rgba(0,0,0,0.55);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+
+@media (max-width: 640px) {
+  .vault-title { letter-spacing: 0.10em; font-weight: 800; }
+}
+@media (min-width: 1024px) {
+  .vault-title { letter-spacing: 0.11em; }
+}
+
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .vault-title { color: #e0c87a; }
+}
+
+@keyframes vaultSheen {
+  0% { background-position: center, -160% 0%; }
+  100% { background-position: center, 160% 0%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vault-title { animation: none; }
+}

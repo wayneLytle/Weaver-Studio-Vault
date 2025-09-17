@@ -1,0 +1,41 @@
+{
+  "name": "the-vault-tale-weaver-studio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check:openai": "node ./scripts/check-openai.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.62.0",
+    "@google/genai": "^1.18.0",
+    "@google/generative-ai": "^0.24.1",
+    "@syncfusion/ej2-base": "^31.1.20",
+    "@syncfusion/ej2-buttons": "^31.1.17",
+    "@syncfusion/ej2-documenteditor": "^31.1.20",
+    "@syncfusion/ej2-dropdowns": "^31.1.20",
+    "@syncfusion/ej2-inputs": "^31.1.20",
+    "@syncfusion/ej2-lists": "^31.1.17",
+    "@syncfusion/ej2-navigations": "^31.1.20",
+    "@syncfusion/ej2-popups": "^31.1.20",
+    "@syncfusion/ej2-react-documenteditor": "^31.1.20",
+    "@syncfusion/ej2-splitbuttons": "^31.1.17",
+    "openai": "^5.20.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^22.14.0",
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^16.4.5",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.13",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

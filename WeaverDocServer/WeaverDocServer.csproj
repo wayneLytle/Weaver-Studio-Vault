@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Syncfusion.EJ2.WordEditor.AspNet.Core" Version="25.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Syncfusion.DocIO.Net.Core" Version="25.2.3" />
+    <PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="25.2.3" />
+    <!-- Placeholder: If Syncfusion provides a dedicated server helper for SFDT->DOCX beyond DocIO, add it here -->
+  </ItemGroup>
+</Project>

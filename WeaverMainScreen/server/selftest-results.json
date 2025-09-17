@@ -1,0 +1,27 @@
+{
+  "ts": "2025-09-17T18:26:48.311Z",
+  "openai": {
+    "gpt-5-mini": {
+      "ok": true,
+      "len": 0,
+      "preview": ""
+    },
+    "gpt-4o-mini": {
+      "ok": true,
+      "len": 9,
+      "preview": "OPENAI_OK"
+    }
+  },
+  "gemini": {
+    "gemini-2.5-flash": {
+      "ok": true,
+      "len": 9,
+      "preview": "GEMINI_OK"
+    },
+    "gemini-2.5-pro": {
+      "ok": true,
+      "len": 7,
+      "preview": "GEMINI_"
+    }
+  }
+}

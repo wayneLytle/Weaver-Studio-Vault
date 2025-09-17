@@ -1,0 +1,89 @@
+/* Shared variables and font helpers to match BeVa */
+:root {
+  --bg-primary: #100f15;
+  --bg-secondary: #1e1b24;
+  --border-color: #3a324f;
+  --text-gold: #D1B47A;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a09da8;
+  --accent-primary: #8A4FFF;
+  --accent-secondary: #6c3dbf;
+  --paper-bg: #FDFBF5;
+  --paper-text: #1a202c;
+  --wms-gap: 10px;
+  --wms-top-gap: 20px;
+}
+
+
+
+.tw-shell {
+  box-sizing: border-box;
+  width: 100vw;
+  min-height: 100dvh;
+  height: 100dvh;
+  padding: var(--wms-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wms-gap);
+  overflow: hidden;
+}
+
+.tw-header {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.tw-main-grid {
+  display: flex;
+  flex-direction: row;
+  gap: var(--wms-gap);
+  max-width: 100%;
+  overflow: hidden;
+  min-height: 0;
+  height: 100%;
+  flex: 1;
+}
+
+.tw-main-panel {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.tw-bottom-bar {
+  padding-bottom: var(--wms-gap);
+  margin-bottom: 0;
+}
+.font-unleashed-body { font-family: 'Libre Baskerville', serif; }
+.font-zerotrace { font-family: 'Courier New', Courier, monospace; }
+.font-overmind { font-family: 'Libre Baskerville', serif; font-style: italic; }
+
+/* Hover-activated custom scrollbars */
+/* Removed non-WebKit rules to avoid browser support warnings */
+.scrollbar-thumb-amber { --thumb: rgba(224,200,122,0.5); }
+::-webkit-scrollbar { height: 10px; width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: rgba(224,200,122,0.35); border-radius: 8px; }
+/* Only show thumb accent on hover-enabled containers */
+.hover\:scrollbar-thumb-\[#e0c87a\]\/60:hover::-webkit-scrollbar-thumb { background-color: rgba(224,200,122,0.6); }
+
+/* Utilities */
+.gap-wms { gap: var(--wms-gap); }
+
+.bg-vault {
+  background-image: url('/vault-background.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Highlight color driven via CSS variable */
+:root {
+  --wms-hl-color: rgba(224,200,122,0.28);
+}
+.hl-bg { background-color: var(--wms-hl-color); }
+.hl-bg-off { background-color: transparent; }
+.bg-hl { background: var(--wms-hl-color); }

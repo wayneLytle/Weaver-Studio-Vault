@@ -1,0 +1,42 @@
+title = "Weaver Studio Secret Scan Rules"
+
+[extend]
+# You can extend from default gitleaks rules if installed with: gitleaks detect --config .gitleaks.toml
+
+[allowlist]
+  description = "General allowlist"
+  files = ["LICENSE", "CHANGELOG", "node_modules/", "bin/", "obj/"]
+  regexes = [
+    '''(?i)example(_|-)key''',
+    '''(?i)dummy(_|-)secret'''
+  ]
+
+[[rules]]
+  id = "generic-api-key"
+  description = "Potential API key"
+  regex = '''(?i)api[_-]?key['"=:\s]{0,10}[A-Za-z0-9_\-]{16,64}'''
+  tags = ["apikey"]
+
+[[rules]]
+  id = "google-service-account-json"
+  description = "Google service account private key block"
+  regex = '''"type"\s*:\s*"service_account"\s*,[\s\S]{0,400}?"private_key"\s*:\s*"-----BEGIN PRIVATE KEY-----'''
+  tags = ["gcp","privatekey"]
+
+[[rules]]
+  id = "openai-key"
+  description = "OpenAI style key"
+  regex = '''sk-[A-Za-z0-9]{20,}'''
+  tags = ["openai","apikey"]
+
+[[rules]]
+  id = "azure-connection-string"
+  description = "Azure style connection string"
+  regex = '''(AccountKey|SharedAccessKey)=[A-Za-z0-9+/=]{32,}'''
+  tags = ["azure"]
+
+[[rules]]
+  id = "private-rsa-key"
+  description = "Private RSA key"
+  regex = '''-----BEGIN (RSA |EC |)PRIVATE KEY-----'''
+  tags = ["privatekey"]
