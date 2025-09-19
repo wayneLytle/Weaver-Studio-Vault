@@ -16,7 +16,7 @@ export function makeOpenAI(opts: ChatFactoryOptions): ChatSession {
           { role: message.role, content: message.content },
         ],
       };
-      const resp = await fetch(`${base}/api/chat`, {
+  const resp = await fetch(`${base}/v1/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ engine: 'openai', ...payload }),

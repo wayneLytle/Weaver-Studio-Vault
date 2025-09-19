@@ -1,4 +1,12 @@
 {
+  "private": true,
+  "scripts": {
+    "arch:check": "node ./scripts/arch-check.mjs",
+    "ci:quick": "node ./scripts/ci-quick.mjs",
+    "ci:preflight": "node ./scripts/ci-preflight.mjs",
+    "ci:intent": "node ./scripts/ci-intent.mjs",
+    "ci:all": "npm run arch:check && npm run ci:quick && npm run ci:preflight && npm run ci:intent"
+  },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "lucide-react": "^0.544.0",

@@ -1,0 +1,53 @@
+{
+  "offlineSupport": {
+    "enabled": true,
+    "badge": {
+      "visible": true,
+      "label": "Offline",
+      "position": "top-right",
+      "style": {
+        "background": "#8A4FFF",
+        "color": "#ffffff",
+        "fontWeight": "bold",
+        "padding": "6px 12px",
+        "borderRadius": "6px"
+      }
+    },
+    "localDrafts": {
+      "enabled": true,
+      "storage": "IndexedDB",
+      "autosaveInterval": "30s",
+      "retentionPolicy": "7 days",
+      "syncOnReconnect": true,
+      "conflictResolution": "preferLocal",
+      "audit": {
+        "log": true,
+        "event": "draft.saved"
+      }
+    },
+    "syncEngine": {
+      "trigger": "reconnect",
+      "actions": ["uploadDrafts", "mergeChanges", "resolveConflicts"],
+      "statusFeedback": {
+        "toast": true,
+        "messages": {
+          "success": "Your offline changes have been synced.",
+          "error": "Sync failed. Retrying...",
+          "conflict": "Some changes were merged. Review audit log."
+        }
+      }
+    },
+    "resilience": {
+      "retry": true,
+      "backoff": {
+        "strategy": "exponential",
+        "maxDelay": "60s"
+      },
+      "circuitBreaker": {
+        "enabled": true,
+        "threshold": 5,
+        "resetTimeout": "2m"
+      }
+    }
+  }
+}

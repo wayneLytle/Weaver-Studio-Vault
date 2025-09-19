@@ -4,6 +4,7 @@ import { PlusIcon, SendIcon } from '../constants';
 interface ChatInputProps {
   onSendMessage: (text: string, files: File[]) => void;
   onStop?: () => void;
+  onRetry?: () => void;
   isLoading: boolean;
   engine?: 'openai' | 'gemini';
   openaiModel?: string;
@@ -16,7 +17,7 @@ interface ChatInputProps {
   studioId?: string;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading, engine = 'openai', openaiModel, geminiModel, onEngineChange, onOpenaiModelChange, onGeminiModelChange, isMuted, onToggleMute, studioId }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, onRetry, isLoading, engine = 'openai', openaiModel, geminiModel, onEngineChange, onOpenaiModelChange, onGeminiModelChange, isMuted, onToggleMute, studioId }) => {
   const [text, setText] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -122,8 +123,39 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading,
   };
 
   return (
-  <div data-purpose="chat-input-area" className="p-4 bg-transparent">
-      {/* File context area */}
+  <div data-purpose="chat-input-area" className="bg-[#0a0c0e] border-t-2 border-[#e0c87a]">
+      {/* Engine selector bar */}
+  <div className="px-3 pt-2 pb-1 flex items-center gap-3 text-[10px] tracking-widest uppercase text-[#e0c87a]/80">
+        <label className="flex items-center gap-2"> <span>Engine</span>
+          <select
+            className="bg-[#0a0c0e] border border-[#e0c87a]/50 rounded px-2 py-0.5 text-[11px] focus:outline-none text-[#e0c87a]"
+            value={`${engine}:${engine === 'openai' ? (openaiModel ?? '') : (geminiModel ?? '')}`}
+            onChange={(e) => {
+              const val = e.target.value;
+              const [eng, model] = val.split(':');
+              if (eng === 'openai') {
+                onEngineChange?.('openai');
+                if (model) onOpenaiModelChange?.(model);
+              } else if (eng === 'gemini') {
+                onEngineChange?.('gemini');
+                if (model) onGeminiModelChange?.(model);
+              }
+            }}
+            aria-label="Select AI engine and model"
+          >
+            <option value="openai:gpt-4o">OPEN AI — GPT-4O</option>
+            <option value="openai:gpt-4o-mini">OPEN AI — GPT-4O-MINI</option>
+            <option value="openai:gpt-4o-realtime-preview">OPEN AI — GPT-4O-REALTIME-PREVIEW</option>
+            <option value="gemini:gemini-2.5-pro">GEMINI-2.5-PRO</option>
+            <option value="gemini:gemini-2.5-flash">GEMINI-2.5-FLASH</option>
+            <option value="gemini:gemini-2.0-flash-001">GEMINI-2.0-FLASH-001</option>
+            <option value="gemini:gemini-2.0-flash-lite-001">GEMINI-2.0-FLASH-LITE-001</option>
+          </select>
+        </label>
+  <div className="ml-auto text-[#e0c87a]/60">TALIA</div>
+      </div>
+  <div className="p-3">
+  {/* File context area */}
       {files.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-2 px-1">
           {files.map((file, index) => {
@@ -139,7 +171,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading,
         </div>
       )}
 
-      {/* Main input form */}
+  {/* Main input form */}
       <form
         ref={containerRef}
         onSubmit={handleSendMessage}
@@ -152,36 +184,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading,
         {isLoading && (
           <div className="pointer-events-none absolute top-0 left-0 h-[3px] w-full bg-[#e0c87a]/70 animate-pulse rounded-t-lg" />
         )}
-        {/* Engine selector - bottom-left under input */}
-        <div className="absolute -bottom-7 left-0 flex items-center gap-2">
-          <label className="text-[10px] tracking-widest uppercase text-[#e0c87a]/80">Engine</label>
-          <select
-            className="bg-[#0a0c0e] border-2 border-[#e0c87a]/60 rounded px-2 py-0.5 text-[11px] focus:outline-none text-[#e0c87a] shadow-[0_0_6px_rgba(224,200,122,0.18)]"
-            value={`${engine}:${engine === 'openai' ? (openaiModel ?? '') : (geminiModel ?? '')}`}
-            onChange={(e) => {
-              const val = e.target.value;
-              const [eng, model] = val.split(':');
-              if (eng === 'openai') {
-                onEngineChange?.('openai');
-                if (model) onOpenaiModelChange?.(model);
-              } else if (eng === 'gemini') {
-                onEngineChange?.('gemini');
-                if (model) onGeminiModelChange?.(model);
-              }
-            }}
-          >
-            {/* OpenAI options */}
-            <option value="openai:gpt-4o">OPEN AI — GPT-4O</option>
-            <option value="openai:gpt-4o-mini">OPEN AI — GPT-4O-MINI</option>
-            <option value="openai:gpt-4o-realtime-preview">OPEN AI — GPT-4O-REALTIME-PREVIEW</option>
-            {/* Gemini options */}
-            <option value="gemini:gemini-2.5-pro">GEMINI-2.5-PRO</option>
-            <option value="gemini:gemini-2.5-flash">GEMINI-2.5-FLASH</option>
-            <option value="gemini:gemini-2.0-flash-001">GEMINI-2.0-FLASH-001</option>
-            <option value="gemini:gemini-2.0-flash-lite-001">GEMINI-2.0-FLASH-LITE-001</option>
-          </select>
-        </div>
-        <textarea
+  <textarea
           value={text}
           onChange={(e) => { setText(e.target.value); markActive(); }}
           onKeyDown={handleKeyDown}
@@ -190,7 +193,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading,
           rows={1}
           className="w-full bg-transparent text-stone-200 placeholder-stone-500 resize-none border-none focus:ring-0 p-3 text-base outline-none
                      scrollbar-thin scrollbar-thumb-amber-700/50 scrollbar-track-transparent"
-          style={{ maxHeight: '150px' }}
           disabled={isLoading}
           aria-label="Chat input field"
         />
@@ -198,7 +200,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading,
     {/* Hint removed per request */}
         
         {/* Button Group */}
-        <div className="flex items-center p-1">
+  <div className="flex items-center p-1">
           <button
             type="button"
             onClick={() => { markActive(); fileInputRef.current?.click(); }}
@@ -208,12 +210,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading,
           >
             <PlusIcon />
           </button>
-          <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange}
-              multiple 
-              className="hidden" 
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            multiple
+            className="hidden"
+            aria-label="Add file attachments"
+            title="Add file attachments"
           />
           <button
             type="submit"
@@ -229,13 +233,20 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onStop, isLoading,
           {isLoading && (
             <button type="button" onClick={onStop} className="ml-1 px-2 py-1 text-xs rounded bg-[#0a0c0e] border-2 border-[#e0c87a] text-[#e0c87a] hover:bg-[#111317]">Stop</button>
           )}
+
+          {/* Retry last message */}
+          {!isLoading && (
+            <button type="button" onClick={onRetry} className="ml-1 px-2 py-1 text-xs rounded bg-[#0a0c0e] border-2 border-[#e0c87a] text-[#e0c87a]/90 hover:bg-[#111317]" aria-label="Retry last message">Retry</button>
+          )}
         </div>
 
         {/* helpers removed per request */}
-      </form>
+  </form>
+
+  </div>
 
       {/* Removed extra overlay; handlers are on the form */}
-    </div>
+  </div>
   );
 };
 

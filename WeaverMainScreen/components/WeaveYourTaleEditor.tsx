@@ -265,11 +265,17 @@ const WeaveYourTaleEditor = forwardRef<WeaveEditorHandle>((props, ref) => {
   }));
 
   return (
-    <div className="min-w-0 w-full">
+    <div className="min-w-0 w-full h-full flex flex-col">
       <div
         ref={containerRef}
-        className="relative w-full min-w-0 h-[72vh] overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth hover:scrollbar-thin hover:scrollbar-thumb-[#e0c87a]/60 hover:scrollbar-track-transparent"
+        className="relative w-full min-w-0 flex-1 h-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth hover:scrollbar-thin hover:scrollbar-thumb-[#e0c87a]/60 hover:scrollbar-track-transparent"
       >
+        {/* Studio-only toolbar band (styled via .theme-studio .tw-editor-frame .tw-editor-toolbar) */}
+        <div className="tw-editor-toolbar select-none">
+          <span className="uppercase tracking-widest text-[10px]">Editor</span>
+          <button type="button" className="px-2 py-0.5 rounded border border-[color:var(--wms-gold)]/60 text-[10px]">Undo</button>
+          <button type="button" className="px-2 py-0.5 rounded border border-[color:var(--wms-gold)]/60 text-[10px]">Redo</button>
+        </div>
         <div ref={rowRef} className="flex flex-nowrap gap-3 w-full h-full min-w-0">
           <div className={PAGE_CLASS}>
             <div contentEditable data-page={0} className={EDITOR_CLASS} />

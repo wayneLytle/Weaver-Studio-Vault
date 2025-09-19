@@ -1,0 +1,77 @@
+{
+  "ai": {
+    "routing": {
+      "enabled": true,
+      "personaRouter": true,
+      "taskBasedModelSelection": true,
+      "fallbackStrategy": "nearestPersonaMatch"
+    },
+    "models": [
+      {
+        "name": "GPT-4.5",
+        "provider": "OpenAI",
+        "tasks": ["persona emulation", "tone feedback", "suggestion drafting"]
+      },
+      {
+        "name": "Claude 4",
+        "provider": "Anthropic",
+        "tasks": ["editorial review", "clarity scoring", "persona commentary"]
+      },
+      {
+        "name": "Gemini 2.5 Pro",
+        "provider": "Google",
+        "tasks": ["semantic caching", "tone modulation", "suggestion threading"]
+      },
+      {
+        "name": "Grok 3",
+        "provider": "xAI",
+        "tasks": ["persona emulation", "emotional analysis"]
+      },
+      {
+        "name": "LLaMA 4",
+        "provider": "Meta",
+        "tasks": ["drafting", "feedback tone generation"]
+      },
+      {
+        "name": "DeepSeek R1",
+        "provider": "DeepSeek",
+        "tasks": ["impact scoring", "persona-aware undo commentary"]
+      }
+    ],
+    "features": {
+      "emotionAnalysis": true,
+      "streamingResponses": true,
+      "suggestionThreads": true,
+      "suggestionImpactMeter": true,
+      "draftingMode": {
+        "enabled": true,
+        "tab": "Drafts",
+        "trigger": "toggle:draftingMode"
+      },
+      "toneSelector": {
+        "enabled": true,
+        "options": ["Encouraging", "Direct", "Analytical"],
+        "previewEnabled": true
+      },
+      "personaCommentary": {
+        "onInsert": true,
+        "onUndo": true
+      },
+      "semanticCaching": {
+        "enabled": true,
+        "vectorStore": "pgvector",
+        "matchThreshold": 0.85
+      }
+    },
+    "guardrails": {
+      "enabled": true,
+      "filters": ["toxicity", "bias", "persona integrity"],
+      "moderationEngine": "policy:default"
+    },
+    "audit": {
+      "logSuggestions": true,
+      "logToneChanges": true,
+      "logDrafts": true
+    }
+  }
+}

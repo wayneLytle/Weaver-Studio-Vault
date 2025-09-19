@@ -21,7 +21,7 @@ export async function chatCompletion(
   const temperature = options.temperature ?? 0.6;
   const maxTokens = options.maxTokens ?? 400;
   const base = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:4101';
-  const resp = await fetch(`${base}/api/chat`, {
+  const resp = await fetch(`${base}/v1/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ engine: 'openai', model, temperature, maxTokens, messages })

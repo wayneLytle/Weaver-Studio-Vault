@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
       server: {
         host: true,
         port: 5173,
+        strictPort: true,
         allowedHosts: true
       },
       cacheDir: path.resolve(cacheBase, 'vite', 'weavermainscreen'),

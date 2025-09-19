@@ -1,0 +1,66 @@
+{
+  "contributorMode": {
+    "enabled": true,
+    "toggle": {
+      "label": "Contributor Mode",
+      "position": "footer",
+      "defaultState": false
+    },
+    "features": [
+      "Audit Trail Viewer",
+      "Layout Manifest Preview",
+      "Undo History Panel",
+      "Onboarding Hints",
+      "Patch Logs",
+      "Insert All Preview Modal"
+    ],
+    "auditTrail": {
+      "visible": true,
+      "logTypes": ["insert", "undo", "bookmark", "defer", "draft"],
+      "filters": ["byUser", "byTime", "byAction"],
+      "exportable": true
+    },
+    "layoutPreview": {
+      "enabled": true,
+      "position": "right-column",
+      "modules": ["Manifest Loader", "Layout Validator"],
+      "style": {
+        "background": "#1e1b24",
+        "border": "1px dashed #cab67f",
+        "padding": "12px"
+      }
+    },
+    "onboardingHints": {
+      "enabled": true,
+      "hints": [
+        {
+          "target": "insertButton",
+          "text": "Click to apply AI suggestion. You can undo anytime.",
+          "position": "top"
+        },
+        {
+          "target": "highlightToggle",
+          "text": "Toggle to show/hide AI-inserted edits.",
+          "position": "right"
+        },
+        {
+          "target": "personaChip",
+          "text": "Click to switch personas or preview emulation traits.",
+          "position": "bottom"
+        }
+      ],
+      "dismissible": true,
+      "replayable": true
+    },
+    "undoHistoryPanel": {
+      "enabled": true,
+      "position": "left-sidebar",
+      "display": "timeline",
+      "actions": ["undo", "restore", "viewDiff"],
+      "style": {
+        "background": "#222937",
+        "border": "1px solid #3a324f"
+      }
+    }
+  }
+}

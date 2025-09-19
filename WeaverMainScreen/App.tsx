@@ -8,6 +8,9 @@ import { BellIcon, BellOffIcon } from './constants';
 import { loadGoogleFont, applyTitleFont } from './utils/fontLoader';
 import type { TaleWeaverSettings } from './types';
 import { useNavigate } from 'react-router-dom';
+import { loadManifests } from './services/manifestLoader';
+import { setPersona, setTask } from './services/personaStore';
+import DevManifestsPanel from './components/DevManifestsPanel';
 
 const App: React.FC = () => {
   // Utility: Only show header if not on /tale-weaver/studio
@@ -113,6 +116,19 @@ const App: React.FC = () => {
       keys.forEach((k) => localStorage.removeItem(k));
       sessionStorage.clear();
     } catch {}
+  }, []);
+
+  // Boot: load manifests and set default persona/task intent
+  useEffect(() => {
+    (async () => {
+      try {
+        const m = await loadManifests();
+        if (m?.persona?.persona) setPersona(m.persona.persona);
+        // Default to editorial intent for Tale Weaver to route via OpenAI
+        const defaultIntent = 'editorial';
+        setTask({ intent: defaultIntent });
+      } catch {}
+    })();
   }, []);
 
   useEffect(() => {
@@ -404,6 +420,9 @@ const App: React.FC = () => {
             {muteChime ? <BellOffIcon /> : <BellIcon />}
           </button>
         </div>
+      )}
+      {userName && isDev && (
+        <DevManifestsPanel />
       )}
     </div>
   );

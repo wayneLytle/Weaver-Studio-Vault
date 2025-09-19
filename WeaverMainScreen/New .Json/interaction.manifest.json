@@ -1,0 +1,118 @@
+{
+  "interactions": {
+    "saveChanges": {
+      "trigger": "button:save",
+      "modal": {
+        "title": "Save Your Progress",
+        "actions": ["newSave", "loadSave", "cancel"],
+        "versioning": {
+          "preview": true,
+          "tagging": true,
+          "aiSummary": true
+        }
+      },
+      "api": "POST /api/save",
+      "audit": {
+        "log": true,
+        "event": "save.initiated"
+      }
+    },
+    "exitToLobby": {
+      "trigger": "button:exit",
+      "modal": {
+        "title": "Exit to Lobby",
+        "confirmUnsaved": true,
+        "actions": ["saveAndExit", "exit", "cancel"]
+      },
+      "api": "POST /api/exit",
+      "audit": {
+        "log": true,
+        "event": "exit.requested"
+      }
+    },
+    "insertSuggestion": {
+      "trigger": "button:insert",
+      "stateChange": "inserted",
+      "undo": {
+        "trigger": "button:undo",
+        "commentary": "persona-aware",
+        "audit": {
+          "log": true,
+          "event": "suggestion.reverted"
+        }
+      },
+      "audit": {
+        "log": true,
+        "event": "suggestion.inserted"
+      }
+    },
+    "highlightToggle": {
+      "trigger": "toggle:highlightEdits",
+      "colorSelector": {
+        "modal": true,
+        "scopeOptions": ["pastAndFuture", "futureOnly"]
+      },
+      "audit": {
+        "log": true,
+        "event": "highlight.toggled"
+      }
+    },
+    "insertAll": {
+      "trigger": "button:insertAll",
+      "previewModal": {
+        "enabled": true,
+        "filters": ["Inserted", "Pending", "Deferred"],
+        "actions": ["acceptAll", "dismissSelected"]
+      },
+      "audit": {
+        "log": true,
+        "event": "suggestions.bulkInserted"
+      }
+    },
+    "reviewLater": {
+      "trigger": "button:reviewLater",
+      "stateChange": "deferred",
+      "audit": {
+        "log": true,
+        "event": "suggestion.deferred"
+      }
+    },
+    "toneSelector": {
+      "trigger": "dropdown:tone",
+      "options": ["Encouraging", "Direct", "Analytical"],
+      "previewEnabled": true,
+      "audit": {
+        "log": true,
+        "event": "tone.selected"
+      }
+    },
+    "bookmarkCard": {
+      "trigger": "button:bookmark",
+      "stateChange": "bookmarked",
+      "audit": {
+        "log": true,
+        "event": "card.bookmarked"
+      }
+    },
+    "draftingMode": {
+      "trigger": "toggle:draftingMode",
+      "stateChange": "enabled",
+      "tab": "Drafts",
+      "audit": {
+        "log": true,
+        "event": "draftingMode.activated"
+      }
+    },
+    "scrollRecovery": {
+      "trigger": "scrollAway",
+      "recovery": {
+        "autoFocus": true,
+        "highlightReturn": true
+      },
+      "audit": {
+        "log": true,
+        "event": "scroll.recovered"
+      }
+    }
+  }
+}

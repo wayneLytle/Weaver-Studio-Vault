@@ -10,7 +10,7 @@ export async function chatWithGemini(input: {
   projectId?: string;
   location?: string;
 }): Promise<string> {
-  const res = await fetch(`${API_BASE}/api/chat`, {
+  const res = await fetch(`${API_BASE}/v1/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ engine: 'gemini', ...input }),

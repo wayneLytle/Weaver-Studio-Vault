@@ -1,0 +1,131 @@
+{
+  "layout": {
+    "gridUnit": "10px",
+    "theme": "dark",
+    "containers": [
+      {
+        "id": "global-header",
+        "type": "fixed",
+        "position": "top",
+        "height": 55,
+        "width": "100%",
+        "modules": ["Persona Selector", "Transition Manager"],
+        "style": {
+          "background": "#10141b",
+          "borderBottom": "1px solid #cab67f"
+        }
+      },
+      {
+        "id": "pages-header",
+        "type": "section-header",
+        "position": "center-top",
+        "height": 44,
+        "width": 900,
+        "label": "Weave Your Tale",
+        "style": {
+          "textAlign": "center",
+          "fontWeight": "bold",
+          "color": "#D1B47A"
+        }
+      },
+      {
+        "id": "writing-tools",
+        "type": "toolbar",
+        "position": "above-pages",
+        "height": 44,
+        "width": 900,
+        "gapBelow": 10,
+        "modules": ["Rich Text Toolbar"],
+        "style": {
+          "background": "#1e1b24"
+        }
+      },
+      {
+        "id": "pages-container",
+        "type": "scroll-snap",
+        "position": "center",
+        "width": 900,
+        "height": 687,
+        "scroll": {
+          "direction": "horizontal",
+          "snap": true,
+          "trigger": "90% fill",
+          "preloadNext": true
+        },
+        "modules": ["Page Renderer", "Layout Validator"],
+        "style": {
+          "background": "transparent",
+          "overflowX": "auto",
+          "overflowY": "hidden"
+        }
+      },
+      {
+        "id": "chat-container",
+        "type": "scrollable",
+        "position": "right-column",
+        "height": 600,
+        "width": 400,
+        "modules": ["Chat Bubble System", "Edge AI/WASM Inference Module"],
+        "style": {
+          "background": "#10141b",
+          "padding": "12px"
+        }
+      },
+      {
+        "id": "reviews-header",
+        "type": "section-header",
+        "position": "above-reviews",
+        "height": 44,
+        "width": 400,
+        "label": "Reviews & Suggestions",
+        "style": {
+          "fontWeight": "bold",
+          "color": "#D1B47A"
+        }
+      },
+      {
+        "id": "summary-card-container",
+        "type": "stacked-cards",
+        "position": "right-column",
+        "height": 600,
+        "width": 400,
+        "modules": ["Manifest Diff Viewer", "Audit Trail Generator"],
+        "cardLogic": {
+          "liveQueue": true,
+          "insertAll": true,
+          "bookmarking": true,
+          "filters": ["Inserted", "Pending", "Deferred", "Manual", "Bookmarked"]
+        },
+        "style": {
+          "padding": "6px",
+          "gap": "6px"
+        }
+      },
+      {
+        "id": "footer-controls",
+        "type": "toolbar",
+        "position": "bottom",
+        "height": 100,
+        "width": 900,
+        "modules": ["Persona Selector", "Adaptive UI/UX Personalization Engine"],
+        "elements": [
+          "dropdown:role",
+          "dropdown:style",
+          "dropdown:genre",
+          "dropdown:writer",
+          "toggle:writerEmulation",
+          "toggle:editorialMode",
+          "toggle:highlightEdits",
+          "colorSelector:highlightColor"
+        ],
+        "personaChip": true,
+        "style": {
+          "display": "flex",
+          "justifyContent": "space-evenly",
+          "flexWrap": "nowrap",
+          "dropdownDirection": "up"
+        }
+      }
+    ]
+  }
+}

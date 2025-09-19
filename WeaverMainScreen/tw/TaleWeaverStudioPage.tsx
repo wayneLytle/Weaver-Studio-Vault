@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TaleWeaverStudio from '../components/TaleWeaverStudio';
 import type { TaleWeaverSettings, AiEngine } from '../types';
 import { useEngine } from '../hooks/useEngine';
@@ -31,27 +31,20 @@ const TaleWeaverStudioPage: React.FC = () => {
   }
 
   return (
-    <div className="tw-shell">
-      <header className="w-full z-10 py-3 sm:py-4 md:py-5">
-        <div className="w-full px-6 flex items-center justify-between">
-          <h1 className="vault-title flex-1 text-center">Tale Weaver Studio</h1>
-        </div>
-      </header>
-      <main className="w-full flex-1 min-h-0">
-        <TaleWeaverStudio
-          userName={userName}
-          settings={settings}
-          engine={engine}
-          openaiModel={openaiModel}
-          geminiModel={geminiModel}
-          onEngineChange={(e) => setEngine(e as AiEngine)}
-          onOpenaiModelChange={setOpenaiModel}
-          onGeminiModelChange={setGeminiModel}
-          // @ts-ignore
-          isMuted={muteChime}
-          onToggleMute={() => setMuteChime((m) => !m)}
-        />
-      </main>
+    <div className="tw-shell tw-shell--studio theme-studio">
+      <TaleWeaverStudio
+        userName={userName}
+        settings={settings}
+        engine={engine}
+        openaiModel={openaiModel}
+        geminiModel={geminiModel}
+        onEngineChange={(e) => setEngine(e as AiEngine)}
+        onOpenaiModelChange={setOpenaiModel}
+        onGeminiModelChange={setGeminiModel}
+        // @ts-ignore
+        isMuted={muteChime}
+        onToggleMute={() => setMuteChime((m) => !m)}
+      />
     </div>
   );
 };

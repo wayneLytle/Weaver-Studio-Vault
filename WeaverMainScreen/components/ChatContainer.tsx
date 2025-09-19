@@ -3,7 +3,8 @@ import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import type { ChatMessage, AiEngine } from '../types';
 import { chat } from '../services/chatService';
-import { getPersona, getTask } from '../services/personaStore';
+import { useChatStream } from '../hooks/useChatStream';
+import { getPersona, getTask, setTask } from '../services/personaStore';
 import { buildSystemInstruction } from '../services/promptHelpers';
 
 interface ChatContainerProps {
@@ -41,6 +42,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ userName, engine = 'opena
     { id: 'init-0', sender: 'bot', text: initialBot }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const { stream, cancel } = useChatStream();
   const abortRef = React.useRef<AbortController | null>(null);
   const [isIdle, setIsIdle] = useState(false);
   useEffect(() => {
@@ -72,6 +74,26 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ userName, engine = 'opena
   }, [muteChime, isMuted]);
   const effectiveMuted = typeof isMuted === 'boolean' ? isMuted : muteChime;
   const systemInstruction = useMemo(() => systemInstructionOverride || buildSystemInstruction(userName), [userName, systemInstructionOverride]);
+
+  // Map studio selection to a lightweight intent to influence routing
+  useEffect(() => {
+    const intent = (() => {
+      switch (studioId) {
+        case 'tale-weaver':
+          return 'editorial';
+        case 'ink-weaver':
+        case 'scene-weaver':
+        case 'audio-weaver':
+          return 'tone';
+        case 'code-weaver':
+        case 'battle-bot':
+          return 'threading';
+        default:
+          return 'editorial';
+      }
+    })();
+    try { setTask({ ...(getTask() || {}), intent }); } catch {}
+  }, [studioId]);
 
   // Soft response chime
   const audioCtxRefObj = (window as any).__wms_audio_ctx_ref || { ctx: null as AudioContext | null };
@@ -128,22 +150,34 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ userName, engine = 'opena
     try {
       abortRef.current?.abort();
       abortRef.current = new AbortController();
-      const result = await chat(payload as any, abortRef.current.signal);
-      const content = result?.content || '';
-      console.log('[frontend] backend response length:', content.length, 'engine:', engine, 'modelUsed:', result?.modelUsed);
-      const botMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'bot',
-        text: content && content.trim().length > 0 ? content : '…',
-        engineUsed: result?.engine as any,
-        modelUsed: result?.modelUsed,
-      };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-      // Chime on response land (skip for reduced motion OR if muted)
-      try {
-        const prefersReduced = typeof window !== 'undefined' && 'matchMedia' in window && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (!prefersReduced && !effectiveMuted) playResponseChime();
-      } catch {}
+      // Start with streaming path; fallback to non-stream on error
+      const botId = (Date.now() + 1).toString();
+      setMessages((prev) => [...prev, { id: botId, sender: 'bot', text: '…' }]);
+      let accumulated = '';
+      let ended = false;
+      await stream(payload as any, {
+        onDelta: (chunk) => {
+          accumulated += chunk;
+          setMessages((prev) => prev.map(m => m.id === botId ? { ...m, text: accumulated } : m));
+        },
+        onEnd: (meta) => {
+          ended = true;
+          setMessages((prev) => prev.map(m => m.id === botId ? { ...m, text: (accumulated || '…'), engineUsed: (meta?.engine as any) ?? engine, modelUsed: meta?.modelUsed } : m));
+          try {
+            const prefersReduced = typeof window !== 'undefined' && 'matchMedia' in window && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!prefersReduced && !effectiveMuted) playResponseChime();
+          } catch {}
+        },
+        onError: async () => {
+          try {
+            const result = await chat(payload as any, abortRef.current!.signal);
+            const content = result?.content || '';
+            setMessages((prev) => prev.map(m => m.id === botId ? { ...m, text: content || '…', engineUsed: result?.engine as any, modelUsed: result?.modelUsed } : m));
+          } catch (e) {
+            setMessages((prev) => prev.map(m => m.id === botId ? { ...m, text: 'Sorry, something failed upstream. Try switching engines or retrying.' } : m));
+          }
+        }
+      });
     } catch (error) {
       console.error("Failed to get response from backend", error);
       const errorMessage: ChatMessage = {
@@ -158,17 +192,27 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ userName, engine = 'opena
   }, [messages, systemInstruction, engine, openaiModel, geminiModel]);
 
   const handleStop = useCallback(() => {
+    try { cancel(); } catch {}
     try { abortRef.current?.abort(); } catch {}
     setIsLoading(false);
-  }, []);
+  }, [cancel]);
+
+  const handleRetry = useCallback(() => {
+    const lastUser = [...messages].reverse().find(m => m.sender === 'user');
+    if (!lastUser) return;
+    handleSendMessage(lastUser.text, lastUser.files || []);
+  }, [messages, handleSendMessage]);
 
   const wrapperClass = containerClassName || "h-[70vh] w-full max-w-4xl flex flex-col rounded-lg bg-transparent";
   return (
-    <div data-purpose="chat-interface-container" data-layout="chat-panel" className={wrapperClass}>
-      <ChatHistory messages={messages} isLoading={isLoading} isIdle={isIdle} />
+    <div data-purpose="chat-interface-container" data-layout="chat-panel" className={wrapperClass + ' overflow-hidden'}>
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <ChatHistory messages={messages} isLoading={isLoading} isIdle={isIdle} />
+      </div>
       <ChatInput
         onSendMessage={handleSendMessage}
         onStop={handleStop}
+        onRetry={handleRetry}
         isLoading={isLoading}
         engine={engine}
         openaiModel={openaiModel}

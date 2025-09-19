@@ -224,22 +224,22 @@ const ReviewsPanel: React.FC<ReviewsPanelProps> = ({ userName, engine, geminiMod
   // set CSS variable for highlight globally (scoped via style tag)
   const hlColor = (highlightEnabled ? (highlightColor || 'rgba(224,200,122,0.28)') : 'transparent');
   return (
-    <div className="h-[72vh] flex flex-col">
+  <div className="tw-reviews flex flex-col h-full min-h-0">
       <style>{`:root{ --wms-hl-color: ${hlColor}; }`}</style>
       <div className="relative min-h-0 flex-1 overflow-hidden">
   <div className="absolute inset-0 overflow-y-auto pr-1 pb-20 scrollbar-thin hover:scrollbar-thumb-[#e0c87a]/70 scrollbar-thumb-[#e0c87a]/40 scrollbar-track-transparent">
           {liveCard && (
             <div
               className={
-                'mb-3 rounded border border-[#e0c87a]/80 bg-[#12181e] p-3 transition-opacity duration-300 ' +
+                'tw-live mb-3 rounded border-2 border-[#e0c87a] bg-[#12181e] p-3 transition-opacity duration-300 ' +
                 (livePhase === 'fading-in' ? 'opacity-0' : livePhase === 'fading-out' ? 'opacity-0' : 'opacity-100')
               }
             >
               <div className="flex items-center justify-between mb-1">
                 <div className="text-xs text-[#e0c87a]/90 uppercase tracking-widest">Live Suggestion — {new Date(liveCard.createdAt).toLocaleTimeString()}</div>
                 <div className="flex gap-2">
-                  <button onClick={dismissLive} className="text-[10px] px-2 py-0.5 rounded border border-[#e0c87a]/40 text-[#e0c87a]/70">Dismiss</button>
-                  <button onClick={acceptLive} className="text-[10px] px-2 py-0.5 rounded border-2 border-[#e0c87a] text-[#e0c87a]">Accept</button>
+                  <button onClick={dismissLive} className="tw-pill text-[10px] px-2 py-0.5 rounded border border-[#e0c87a]/40 text-[#e0c87a]/70">Dismiss</button>
+                  <button onClick={acceptLive} className="tw-pill text-[10px] px-2 py-0.5 rounded border-2 border-[#e0c87a] text-[#e0c87a]">Accept</button>
                 </div>
               </div>
               <div className="mb-2 text-sm text-stone-300">
@@ -258,10 +258,10 @@ const ReviewsPanel: React.FC<ReviewsPanelProps> = ({ userName, engine, geminiMod
             <div className="text-stone-400 text-sm mt-2 px-1">No feedback yet. Select text in the editor, then click Review Selected Work.</div>
           )}
           {cards.map((c) => (
-            <div key={c.id} className="mb-3 rounded border border-[#e0c87a]/60 bg-[#0d1116] p-3">
+            <div key={c.id} className="tw-card mb-3 rounded border-2 border-[#e0c87a] bg-[#0d1116] p-3">
               <div className="flex items-center justify-between mb-1">
                 <div className="text-xs text-[#e0c87a]/80 uppercase tracking-widest">Talia — {new Date(c.createdAt).toLocaleTimeString()}</div>
-                <button onClick={()=>closeCard(c.id)} className="text-[10px] px-2 py-0.5 rounded border border-[#e0c87a]/40 text-[#e0c87a]/70">Close</button>
+                <button onClick={()=>closeCard(c.id)} className="tw-pill text-[10px] px-2 py-0.5 rounded border border-[#e0c87a]/40 text-[#e0c87a]/70">Close</button>
               </div>
               <div className="mb-2 text-sm text-stone-300">
                 <p>{c.rationale || '—'}</p>
@@ -279,7 +279,7 @@ const ReviewsPanel: React.FC<ReviewsPanelProps> = ({ userName, engine, geminiMod
                     const ok = c.target && onReplaceExact ? onReplaceExact(c.target, text) : false;
                     if (!ok) onInsert(text);
                   }}
-                  className="px-3 py-1 rounded border-2 border-[#e0c87a] text-[#e0c87a]"
+                  className="tw-pill px-3 py-1 rounded border-2 border-[#e0c87a] text-[#e0c87a]"
                 >
                   Insert
                 </button>

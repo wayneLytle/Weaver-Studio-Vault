@@ -48,8 +48,8 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading, isIdle }
       data-purpose="chat-history-area"
       // Custom scrollbar styles via Tailwind utilities
   className={`flex-grow p-4 sm:p-6 space-y-4 overflow-y-auto 
-         scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-[#e0c87a]/50 hover:scrollbar-thumb-[#e0c87a]/80 
-         scrollbar-track-transparent ${isIdle ? 'opacity-60 transition-opacity duration-500' : 'opacity-100 transition-opacity duration-200'}`}
+    scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-[#e0c87a]/50 hover:scrollbar-thumb-[#e0c87a]/80 
+    scrollbar-track-transparent ${isIdle ? 'opacity-60 transition-opacity duration-500' : 'opacity-100 transition-opacity duration-200'}`}
       style={{ WebkitMaskImage: maskGradient as any, maskImage: maskGradient as any }}
     >
       {messages.map((msg, idx) => (

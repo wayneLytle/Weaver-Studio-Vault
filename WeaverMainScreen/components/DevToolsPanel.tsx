@@ -233,42 +233,7 @@ const DevToolsPanel: React.FC<DevToolsPanelProps> = ({ isOpen, onClose, engine, 
           </div>
         </section>
 
-          {/* Syncfusion Status */}
-          <section className="mb-4">
-            <div className="uppercase text-xs tracking-widest mb-2">Syncfusion</div>
-            <div className="text-[12px] opacity-80 mb-2">License and Service URL as detected by the frontend.</div>
-            <div className="grid grid-cols-1 gap-1 text-[12px]">
-              <div>
-                <span className="opacity-70">License Key Present:</span>
-                <span className="ml-2">{((import.meta as any).env?.VITE_SYNCFUSION_LICENSE_KEY ? 'Yes' : 'No')}</span>
-              </div>
-              <div className="break-all">
-                <span className="opacity-70">Service URL:</span>
-                <span className="ml-2">{(import.meta as any).env?.VITE_SYNCFUSION_SERVICE_URL || '(not set)'}</span>
-              </div>
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <button
-                className="px-2 py-1 rounded border border-[#e0c87a]"
-                onClick={async ()=>{
-                  setPingResult(null);
-                  const url = (import.meta as any).env?.VITE_SYNCFUSION_SERVICE_URL as string | undefined;
-                  if (!url) { setPingResult('No service URL set'); return; }
-                  try {
-                    const health = url.replace(/\/$/, '') + '/SystemProperties';
-                    const res = await fetch(health, { method: 'GET' });
-                    const text = await res.text();
-                    setPingResult(`HTTP ${res.status}: ${text.slice(0, 300)}${text.length>300?'…':''}`);
-                  } catch (e:any) {
-                    setPingResult(`Error: ${e?.message || String(e)}`);
-                  }
-                }}
-              >Ping Service</button>
-              {pingResult && <div className="text-[12px] opacity-80 break-all">{pingResult}</div>}
-            </div>
-            <div className="text-[11px] opacity-60 mt-2">Add to your .env in WeaverMainScreen:</div>
-            <pre className="bg-[#141a20] border border-[#e0c87a]/40 rounded p-2 text-[12px] overflow-x-auto w-full max-w-full">VITE_SYNCFUSION_LICENSE_KEY=...{"\n"}VITE_SYNCFUSION_SERVICE_URL=https://your-doceditor-server/api/documenteditor/</pre>
-          </section>
+          {/* Removed vendor-specific section */}
 
           {/* OpenAI Check */}
         <section className="mb-4">

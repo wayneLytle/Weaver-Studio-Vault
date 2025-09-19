@@ -17,3 +17,12 @@ export function fallbackFor(engine: 'openai'|'gemini', currentModel: string) {
 }
 
 export const retryPolicy = { maxAttempts: 2, backoffMs: 250 };
+
+// Lightweight intent-based routing using existing providers only
+// persona/editorial -> openai, tone/threading -> gemini, default -> openai
+export function selectEngineByIntent(intent?: string): 'openai' | 'gemini' {
+  const key = (intent || '').toLowerCase().trim();
+  if (key === 'persona' || key === 'editorial') return 'openai';
+  if (key === 'tone' || key === 'threading') return 'gemini';
+  return 'openai';
+}

@@ -12,9 +12,38 @@ import { orchestrate } from './orchestrator.js';
 import { OrchestratorInput } from '../../shared/contracts';
 
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: '1mb' }));
+const baseDevPorts = [5173, 5174, 5175, 6006];
+const devLocalHosts = [
+  ...baseDevPorts.map(p => `http://localhost:${p}`),
+  ...baseDevPorts.map(p => `http://127.0.0.1:${p}`),
+];
+const extraOriginsEnv = (process.env.ALLOW_ORIGINS || process.env.ALLOW_ORIGIN || '').trim();
+const extraOrigins = extraOriginsEnv
+  ? extraOriginsEnv.split(/[ ,;]+/).map(s => s.trim()).filter(Boolean)
+  : [];
+const allowedOrigins = [...devLocalHosts, ...extraOrigins];
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true); // allow curl/postman
+    // Normalize common localhost/127.0.0.1 equivalence
+    const norm = (o: string) => o.replace('://127.0.0.1', '://localhost');
+    const o1 = origin;
+    const o2 = norm(origin);
+    if (allowedOrigins.includes(o1) || allowedOrigins.includes(o2)) return cb(null, true);
+    const err = new Error(process.env.NODE_ENV === 'production' ? 'Origin not allowed' : 'CORS blocked');
+    return cb(err);
+  },
+  credentials: true
+}));
+// Allow preflight globally (harmless even with global cors)
+app.options('*', cors());
+// Default body size; override per-route as needed
+app.use(express.json({ limit: '512kb' }));
 app.use(rateLimit({ windowMs: 60_000, max: 100 }));
+
+// Per-route rate limiters
+const chatLimiter = rateLimit({ windowMs: 60_000, max: 60, standardHeaders: true, legacyHeaders: false });
+const streamLimiter = rateLimit({ windowMs: 60_000, max: 30, standardHeaders: true, legacyHeaders: false });
 
 // Lazy creation inside route to avoid boot-time key requirement
 
@@ -35,9 +64,36 @@ async function googleAccessToken() {
 
 app.get('/health', (_req: Request, res: Response) => res.json({ ok: true, ts: now() }));
 app.get('/trace/last', (req: Request, res: Response) => res.json(getLastTrace(Number((req.query as any).n ?? 1))));
+app.get('/openapi.yaml', async (_req: Request, res: Response) => {
+  try {
+    const p = path.join(process.cwd(), 'contracts', 'openapi.yaml');
+    res.type('application/yaml');
+    return res.send(await fs.readFile(p, 'utf8'));
+  } catch (e: any) {
+    return res.status(404).send('openapi.yaml not found');
+  }
+});
+
+// Simple AI status endpoint for UI / diagnostics
+app.get('/api/ai/status', (_req: Request, res: Response) => {
+  const openaiConfigured = !!process.env.OPENAI_API_KEY;
+  const geminiConfigured = !!process.env.GOOGLE_PROJECT_ID; // tokenability validated lazily
+  res.json({
+    engines: {
+      openai: {
+        configured: openaiConfigured,
+        models: ['gpt-4o-mini', 'gpt-5-mini']
+      },
+      gemini: {
+        configured: geminiConfigured,
+        projectId: process.env.GOOGLE_PROJECT_ID || undefined
+      }
+    }
+  });
+});
 
 // Unified chat endpoint using orchestration layer
-app.post('/api/chat', async (req: Request, res: Response) => {
+app.post('/api/chat', express.json({ limit: '1mb' }) as any, async (req: Request, res: Response) => {
   try {
     const body = req.body as OrchestratorInput;
     const result = await orchestrate(body);
@@ -47,6 +103,72 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     const status = err?.status || 500; const message = err?.message || 'Orchestration failed';
     recordTrace({ ts: now(), svc: 'orchestrator', event: 'route_error', status, message });
     res.status(status).json({ error: message, status });
+  }
+});
+
+// v1 shim: same orchestrator, versioned path for clients
+app.post('/v1/chat', chatLimiter, express.json({ limit: '1mb' }) as any, async (req: Request, res: Response) => {
+  try {
+    const body = req.body as OrchestratorInput;
+    const result = await orchestrate(body);
+    if (result.error) return res.status(result.status ?? 500).json(result);
+    res.json(result);
+  } catch (err: any) {
+    const status = err?.status || 500; const message = err?.message || 'Orchestration failed';
+    recordTrace({ ts: now(), svc: 'orchestrator', event: 'route_error', status, message });
+    res.status(status).json({ error: message, status });
+  }
+});
+
+// Minimal SSE streaming: sends one message in chunks for now
+app.post('/v1/chat/stream', streamLimiter, express.json({ limit: '1mb' }) as any, async (req: Request, res: Response) => {
+  try {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    // Allow proxies to stream
+    (res as any).flushHeaders?.();
+    let closed = false;
+    req.on('close', () => { closed = true; });
+    const body = req.body as OrchestratorInput;
+    const noProviders = !process.env.OPENAI_API_KEY && !process.env.GOOGLE_PROJECT_ID;
+    if (noProviders) {
+      const lastUser = (body.messages || []).slice().reverse().find(m => m.role === 'user')?.content || 'Hello from demo stream.';
+      const demo = `DEMO STREAM — no providers configured. You said: ${lastUser}`;
+      for (let i = 0; i < demo.length; i += 32) {
+        if (closed) return;
+        const chunk = demo.slice(i, i + 32);
+        res.write(`data: ${JSON.stringify({ delta: chunk })}\n\n`);
+        await new Promise(r => setTimeout(r, 25));
+      }
+      res.write(`event: end\n`);
+      res.write(`data: ${JSON.stringify({ modelUsed: 'demo', engine: 'demo' })}\n\n`);
+      return res.end();
+    }
+    const result = await orchestrate(body);
+    if (result.error) {
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ error: result.error, status: result.status || 500 })}\n\n`);
+      return res.end();
+    }
+    const text = result.content || '';
+    const size = Math.max(40, Math.ceil(text.length / 5));
+    for (let i = 0; i < text.length; i += size) {
+      if (closed) return;
+      const chunk = text.slice(i, i + size);
+      res.write(`data: ${JSON.stringify({ delta: chunk })}\n\n`);
+      await new Promise(r => setTimeout(r, 30));
+    }
+    res.write(`event: end\n`);
+    res.write(`data: ${JSON.stringify({ modelUsed: result.modelUsed, engine: result.engine })}\n\n`);
+    res.end();
+  } catch (err: any) {
+    try {
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ error: err?.message || 'stream_error' })}\n\n`);
+    } finally {
+      res.end();
+    }
   }
 });
 
@@ -125,6 +247,8 @@ app.get('/selftest/gemini', async (req: Request, res: Response) => {
 const port = Number(process.env.PORT ?? 4101);
 app.listen(port, async () => {
   console.log(`[weaver-main-server] http://localhost:${port}`);
+  if (!process.env.OPENAI_API_KEY) console.warn('[ai] OPENAI_API_KEY missing – OpenAI engine disabled');
+  if (!process.env.GOOGLE_PROJECT_ID) console.warn('[ai] GOOGLE_PROJECT_ID missing – Gemini engine disabled');
   // Kick off boot self-tests without blocking the server
   setTimeout(() => runBootSelfTests().catch(err => console.error('Boot selftests failed:', err?.message || err)), 200);
 });

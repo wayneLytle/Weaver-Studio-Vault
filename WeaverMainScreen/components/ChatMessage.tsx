@@ -10,9 +10,7 @@ interface ChatMessageProps {
 
 const ChatMessageComponent: React.FC<ChatMessageProps> = ({ message, index = 0, total = 1, isIdle = false }) => {
   const [mounted, setMounted] = useState(false);
-  const [currentDuration, setCurrentDuration] = useState<number | null>(null);
-  const [shimmerOpacity, setShimmerOpacity] = useState<number>(1);
-  const [shimmerShadow, setShimmerShadow] = useState<string>('none');
+  const [shimmerOn, setShimmerOn] = useState(false);
   useEffect(() => {
     const t = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(t);
@@ -25,24 +23,14 @@ const ChatMessageComponent: React.FC<ChatMessageProps> = ({ message, index = 0, 
   const delayMs = isUser ? 0 : Math.min(120, Math.max(0, lineCount - 1) * 20);
 
   useEffect(() => {
-    setCurrentDuration(durationMs);
-  }, [durationMs]);
-
-  useEffect(() => {
     if (!mounted) return;
     if (isUser) return;
     const prefersReduced = typeof window !== 'undefined' && 'matchMedia' in window && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) return;
     const totalTime = delayMs + durationMs + 20;
     const timer = setTimeout(() => {
-      setCurrentDuration(0);
-      setShimmerOpacity(0.95);
-      setShimmerShadow('0 0 8px rgba(224,200,122,0.15)');
-      requestAnimationFrame(() => {
-        setCurrentDuration(80);
-        setShimmerOpacity(1);
-        setShimmerShadow('none');
-      });
+      setShimmerOn(true);
+      setTimeout(() => setShimmerOn(false), 160);
     }, totalTime);
     return () => clearTimeout(timer);
   }, [mounted, isUser, delayMs, durationMs]);
@@ -50,24 +38,21 @@ const ChatMessageComponent: React.FC<ChatMessageProps> = ({ message, index = 0, 
   // Base container styles
   const containerClasses = `flex items-start gap-2 w-full max-w-3xl ${isUser ? 'ml-auto justify-end' : 'mr-auto justify-start'}`;
   
-  // Bubble styles
-  const bubbleClasses = `rounded-lg px-4 py-2 text-stone-200 bg-[#0a0c0e]/100 border-2 border-[#e0c87a] transition-all ease-out [will-change:transform,opacity] motion-reduce:transition-none motion-reduce:transform-none ` +
-    (mounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-1 scale-[0.99]');
-  const bubbleStyle: React.CSSProperties = {
-    transitionDuration: `${(currentDuration ?? durationMs)}ms`,
-    transitionDelay: `${delayMs}ms`,
-    ...(mounted ? { opacity: shimmerOpacity, boxShadow: shimmerShadow } : {}),
-    ...(isIdle
-      ? {
-          opacity: 0,
-          transitionDuration: '800ms',
-          transitionDelay: `${Math.min(600, index * 80)}ms`,
-        }
-      : {}),
-  };
+  // Bubble styles via classes only (no inline styles)
+  const durClass = `[transition-duration:${durationMs}ms]` as const;
+  const delClass = `[transition-delay:${delayMs}ms]` as const;
+  const idleClass = isIdle ? `opacity-0 [transition-duration:800ms] [transition-delay:${Math.min(600, index * 80)}ms]` : '';
+  const bubbleClasses = `rounded-lg px-4 py-2 text-stone-200 bg-[#0a0c0e]/100 border-2 border-[#e0c87a] transition-all ease-out [will-change:transform,opacity] motion-reduce:transition-none motion-reduce:transform-none ${durClass} ${delClass} ${idleClass} ` +
+    (mounted ? `opacity-100 translate-y-0 scale-100 ${shimmerOn ? 'tw-shimmer' : ''}` : 'opacity-0 translate-y-1 scale-[0.99]');
   
   // Persona avatar styles
-  const avatarClasses = `w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${isUser ? 'bg-amber-800 text-amber-200' : 'bg-slate-600 text-slate-200'}`;
+  const avatarClasses = `tw-avatar w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${isUser ? 'bg-amber-800 text-amber-200' : 'bg-slate-600 text-slate-200'}`;
+
+  const handleCopy = (text: string) => {
+    try {
+      navigator.clipboard.writeText(text);
+    } catch {}
+  };
 
   return (
     <div 
@@ -76,11 +61,23 @@ const ChatMessageComponent: React.FC<ChatMessageProps> = ({ message, index = 0, 
         className={containerClasses}>
       {isUser ? (
         <>
-          <div className={bubbleClasses} style={bubbleStyle}>
+          <div className={bubbleClasses + ' tw-bubble'}>
+            <button
+              type="button"
+              className="tw-copy"
+              title="Copy message"
+              aria-label="Copy message"
+              onClick={() => handleCopy(message.text || '')}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+                <rect x="4" y="4" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+            </button>
             {/* Engine/Model badge for assistant replies */}
             {message.sender === 'bot' && (message.engineUsed || message.modelUsed) && (
               <div className="-mt-1 -mb-1 mb-1 flex justify-end">
-                <span className="inline-flex items-center gap-1 text-[10px] tracking-wide px-2 py-[2px] rounded border border-[#e0c87a]/60 text-[#e0c87a]/90 bg-black/30">
+                <span className="tw-badge inline-flex items-center gap-1 text-[10px] tracking-wide px-2 py-[2px] rounded border border-[#e0c87a]/60 text-[#e0c87a]/90 bg-black/30">
                   {message.engineUsed ? message.engineUsed.toUpperCase() : null}
                   {message.modelUsed ? `— ${message.modelUsed}` : null}
                 </span>
@@ -102,11 +99,23 @@ const ChatMessageComponent: React.FC<ChatMessageProps> = ({ message, index = 0, 
       ) : (
         <>
           <div className={avatarClasses}>🧨</div>
-          <div className={bubbleClasses} style={bubbleStyle}>
+          <div className={bubbleClasses + ' tw-bubble'}>
+        <button
+          type="button"
+          className="tw-copy"
+          title="Copy message"
+          aria-label="Copy message"
+          onClick={() => handleCopy(message.text || '')}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+            <rect x="4" y="4" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+          </svg>
+        </button>
         {/* Engine/Model badge for assistant replies */}
         {message.sender === 'bot' && (message.engineUsed || message.modelUsed) && (
           <div className="-mt-1 -mb-1 mb-1 flex justify-end">
-            <span className="inline-flex items-center gap-1 text-[10px] tracking-wide px-2 py-[2px] rounded border border-[#e0c87a]/60 text-[#e0c87a]/90 bg-black/30">
+            <span className="tw-badge inline-flex items-center gap-1 text-[10px] tracking-wide px-2 py-[2px] rounded border border-[#e0c87a]/60 text-[#e0c87a]/90 bg-black/30">
               {message.engineUsed ? message.engineUsed.toUpperCase() : null}
               {message.modelUsed ? `— ${message.modelUsed}` : null}
             </span>

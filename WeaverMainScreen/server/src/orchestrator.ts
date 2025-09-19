@@ -1,7 +1,7 @@
 import { OrchestratorInput, OrchestratorResult, PromptMessage } from '../../shared/contracts';
 import { buildSystemInstruction } from './persona.js';
 import { recordTrace } from './trace.js';
-import { selectEngineAndModel, fallbackFor, retryPolicy } from './routingPolicy.js';
+import { selectEngineAndModel, fallbackFor, retryPolicy, selectEngineByIntent } from './routingPolicy.js';
 import { runOpenAI } from './adapters/openaiAdapter.js';
 import { runGemini } from './adapters/geminiAdapter.js';
 
@@ -10,7 +10,9 @@ const preview = (s?: string) => (s || '').replace(/\s+/g, ' ').slice(0, 160);
 
 export async function orchestrate(input: OrchestratorInput): Promise<OrchestratorResult> {
   const traceId = input.traceId || Math.random().toString(36).slice(2);
-  const { engine, model } = selectEngineAndModel(input.engine, input.model);
+  // Honor explicit engine; otherwise choose by lightweight intent routing
+  const routedEngine = input.engine || selectEngineByIntent(input.persona?.taskManifest?.intent);
+  const { engine, model } = selectEngineAndModel(routedEngine, input.model);
   const sysBase = input.systemInstruction || input.messages.find(m => m.role === 'system')?.content;
   const system = buildSystemInstruction(sysBase, input.persona?.userProfile, input.persona?.taskManifest);
 

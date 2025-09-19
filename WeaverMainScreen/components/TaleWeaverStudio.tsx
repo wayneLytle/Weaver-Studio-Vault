@@ -9,7 +9,6 @@ import RestorePointModal, { RestorePoint } from './RestorePointModal';
 import HighlightModal from './HighlightModal';
 import { useActiveUsers } from '../hooks/useActiveUsers';
 import DevToolsPanel from './DevToolsPanel';
-import SyncfusionDocxEditor from './SyncfusionDocxEditor';
 
 export interface TaleWeaverStudioProps {
   userName: string;
@@ -26,8 +25,8 @@ export interface TaleWeaverStudioProps {
 
 type PanelProps = { title: string; children: React.ReactNode; className?: string };
 const Panel: React.FC<PanelProps> = ({ title, children, className }) => (
-  <div className={(className ? className + ' ' : '') + "rounded border-2 border-[#e0c87a] bg-[#0b0f13]/90"}>
-    <div className="px-3 py-2 border-b-2 border-[#e0c87a] text-[#e0c87a] tracking-widest uppercase text-xs">{title}</div>
+  <div className={(className ? className + ' ' : '') + "rounded-lg border-2 border-[var(--wms-gold)] bg-[color:var(--wms-mid)]/85"}>
+    <div className="px-3 py-2 border-b-2 border-[var(--wms-gold)] text-[var(--wms-gold)] tracking-widest uppercase text-xs bg-[color:var(--wms-deep)]/95">{title}</div>
     <div className="p-3">{children}</div>
   </div>
 );
@@ -48,10 +47,6 @@ const TaleWeaverStudio: React.FC<TaleWeaverStudioProps> = ({ userName, settings,
     try { return localStorage.getItem('wms-devtools-open') === '1'; } catch { return false; }
   });
   useEffect(() => { try { localStorage.setItem('wms-devtools-open', showDevTools ? '1' : '0'); } catch {} }, [showDevTools]);
-  const [useSyncfusionEditor, setUseSyncfusionEditor] = useState<boolean>(() => {
-    try { return localStorage.getItem('wms-flag-syncfusion-editor') === '1'; } catch { return false; }
-  });
-  useEffect(() => { try { localStorage.setItem('wms-flag-syncfusion-editor', useSyncfusionEditor ? '1' : '0'); } catch {} }, [useSyncfusionEditor]);
 
   const saveKey = 'wms-tw-draft';
   const handleSave = () => {
@@ -197,94 +192,85 @@ const TaleWeaverStudio: React.FC<TaleWeaverStudioProps> = ({ userName, settings,
       />
 
       {/* Top Bar */}
-  <nav aria-label="Studio menu" className="rounded border-2 border-[#e0c87a] bg-[#0a0c0e]/80 px-3 py-1.5">
+  <nav aria-label="Studio menu" className="tw-studio-bar rounded-lg border-2 border-[var(--wms-gold)] bg-[color:var(--wms-deep)]/95 px-3 py-1.5">
     <div className="flex items-center justify-between">
-      <div className="text-[#e0c87a] tracking-widest uppercase text-sm">Weave Your Tale — {header}</div>
+      <div className="tw-bar-title text-[var(--wms-gold)] tracking-widest uppercase text-sm">Weave Your Tale — {header}</div>
       <div className="flex items-center gap-4 text-xs">
         <ActiveUsersBadge users={activeUsers} />
-        <button onClick={handleSave} className="px-2 py-1 rounded border border-[#e0c87a] text-[#e0c87a] tracking-widest">SAVE CHANGES</button>
-        <button onClick={handleRestore} className="px-2 py-1 rounded border border-[#e0c87a] text-[#e0c87a] tracking-widest">RESTORE POINT</button>
-        <button className="px-2 py-1 rounded border border-[#e0c87a] text-[#e0c87a] tracking-widest">EXIT TO LOBBY</button>
-        <button onClick={()=>setShowDevTools(true)} className="px-2 py-1 rounded border border-[#e0c87a] text-[#e0c87a] tracking-widest" title="Open Developer Tools">DEV TOOLS</button>
+        <button onClick={handleSave} className="px-2 py-1 rounded border border-[var(--wms-gold)] text-[var(--wms-gold)] tracking-widest">SAVE CHANGES</button>
+        <button onClick={handleRestore} className="px-2 py-1 rounded border border-[var(--wms-gold)] text-[var(--wms-gold)] tracking-widest">RESTORE POINT</button>
+        <button className="px-2 py-1 rounded border border-[var(--wms-gold)] text-[var(--wms-gold)] tracking-widest">EXIT TO LOBBY</button>
+        <button onClick={()=>setShowDevTools(true)} className="px-2 py-1 rounded border border-[var(--wms-gold)] text-[var(--wms-gold)] tracking-widest" title="Open Developer Tools">DEV TOOLS</button>
       </div>
     </div>
   </nav>
 
-      {/* Tri-column Panels */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-  <div className="w-full grid grid-cols-1 lg:grid-cols-[420px_minmax(0,1fr)_420px] gap-wms">
-  <Panel title="Talia" className="flex flex-col min-h-0" role="region" aria-labelledby="panel-talia">
-          <div className="">
-            <ChatContainer
-              userName={userName}
-              engine={engine}
-              geminiModel={geminiModel}
-              openaiModel={openaiModel}
-              onEngineChange={onEngineChange}
-              onOpenaiModelChange={onOpenaiModelChange}
-              onGeminiModelChange={onGeminiModelChange}
-              studioId={'tale-weaver'}
-              isMuted={isMuted}
-              onToggleMute={onToggleMute}
-              // @ts-ignore attach custom system instruction via studioId hack (handled below)
-              systemInstructionOverride={instruction}
-              containerClassName="h-[72vh] w-full flex flex-col"
-            />
-          </div>
-        </Panel>
-
-  <Panel title="Weave Your Tale" className="min-w-0 flex flex-col min-h-0" role="region" aria-labelledby="panel-editor">
-          <div data-layout="editor-area">
-            {useSyncfusionEditor ? (
-              <SyncfusionDocxEditor
-                className="min-h-[68vh]"
-                serviceUrl={(import.meta as any).env?.VITE_SYNCFUSION_SERVICE_URL as string || ''}
+      {/* Tri-column Panels (full height grid; each panel scrolls internally) */}
+      <div className="flex-1 min-h-0 flex flex-col">
+        <div className="studio-grid-3col flex-1 min-h-0">
+          <Panel title="Talia" className="tw-panel flex flex-col min-h-0" role="region" aria-labelledby="panel-talia">
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+              <ChatContainer
+                userName={userName}
+                engine={engine}
+                geminiModel={geminiModel}
+                openaiModel={openaiModel}
+                onEngineChange={onEngineChange}
+                onOpenaiModelChange={onOpenaiModelChange}
+                onGeminiModelChange={onGeminiModelChange}
+                studioId={'tale-weaver'}
+                isMuted={isMuted}
+                onToggleMute={onToggleMute}
+                systemInstructionOverride={instruction}
+                containerClassName="flex-1 min-h-0 flex flex-col overflow-hidden tw-chat tw-chat--studio"
               />
-            ) : (
+            </div>
+          </Panel>
+          <Panel title="Weave Your Tale" className="tw-panel min-w-0 flex flex-col min-h-0" role="region" aria-labelledby="panel-editor">
+            <div data-layout="editor-area" className="tw-editor-frame flex-1 min-h-0 overflow-hidden">
               <WeaveYourTaleEditor ref={editorRef} />
-            )}
-          </div>
-        </Panel>
-
-  <Panel title="Reviews & Suggestions" className="flex flex-col min-h-0" role="region" aria-labelledby="panel-reviews">
-          <ReviewsPanel
-            userName={userName}
-            engine={engine}
-            openaiModel={openaiModel}
-            geminiModel={geminiModel}
-            style={styleSel}
-            genre={genreSel}
-            role={roleSel}
-            writer={writerEmulation ? writerSel : undefined}
-            editorialMode={editorialMode}
-            highlightEnabled={highlightEnabled}
-            highlightColor={highlightColor}
-            getSelectedText={() => editorRef.current?.getSelectedText() || ''}
-            getAllText={() => editorRef.current?.getAllText() || ''}
-            onReplaceExact={(findText, newText) => {
-              return editorRef.current?.replaceFirstOccurrence(findText, newText, { highlight: highlightEnabled, color: highlightColor }) || false;
-            }}
-            onInsert={(text) => {
-              if (!text) return;
-              // Replace current selection with highlighted suggestion
-              editorRef.current?.replaceSelection(text, { highlight: highlightEnabled, color: highlightColor });
-            }}
-          />
-        </Panel>
+            </div>
+          </Panel>
+          <Panel title="Reviews & Suggestions" className="tw-panel flex flex-col min-h-0" role="region" aria-labelledby="panel-reviews">
+            <div className="flex-1 min-h-0 overflow-auto">
+              <ReviewsPanel
+                userName={userName}
+                engine={engine}
+                openaiModel={openaiModel}
+                geminiModel={geminiModel}
+                style={styleSel}
+                genre={genreSel}
+                role={roleSel}
+                writer={writerEmulation ? writerSel : undefined}
+                editorialMode={editorialMode}
+                highlightEnabled={highlightEnabled}
+                highlightColor={highlightColor}
+                getSelectedText={() => editorRef.current?.getSelectedText() || ''}
+                getAllText={() => editorRef.current?.getAllText() || ''}
+                onReplaceExact={(findText, newText) => {
+                  return editorRef.current?.replaceFirstOccurrence(findText, newText, { highlight: highlightEnabled, color: highlightColor }) || false;
+                }}
+                onInsert={(text) => {
+                  if (!text) return;
+                  editorRef.current?.replaceSelection(text, { highlight: highlightEnabled, color: highlightColor });
+                }}
+              />
+            </div>
+          </Panel>
         </div>
       </div>
 
       {/* Bottom Bar (Footer) */}
-      <footer aria-label="Studio controls" className="rounded border-2 border-[#e0c87a] bg-[#0a0c0e]/80 px-3 py-2">
-  <div className="grid grid-cols-1 lg:grid-cols-[420px_minmax(0,1fr)_420px] text-xs text-[#e0c87a] items-center gap-wms">
+  <footer aria-label="Studio controls" className="tw-studio-bar rounded-lg border-2 border-[var(--wms-gold)] bg-[color:var(--wms-deep)]/95 px-3 py-2">
+  <div className="grid grid-cols-1 lg:grid-cols-[420px_minmax(0,1fr)_420px] text-xs text-[var(--wms-gold)] items-center gap-wms">
           {/* Left column (under Talia) */}
           <div className="flex items-center gap-4 justify-start whitespace-nowrap">
             <label className="inline-flex items-center gap-2">
-              <input className="accent-[#e0c87a]" type="checkbox" checked={writerEmulation} onChange={(e)=>setWriterEmulation(e.target.checked)} />
+              <input className="accent-[var(--wms-gold)]" type="checkbox" checked={writerEmulation} onChange={(e)=>setWriterEmulation(e.target.checked)} />
               <span>Writer Emulation</span>
             </label>
             <label className="inline-flex items-center gap-2">
-              <input className="accent-[#e0c87a]" type="checkbox" checked={editorialMode} onChange={(e)=>setEditorialMode(e.target.checked)} />
+              <input className="accent-[var(--wms-gold)]" type="checkbox" checked={editorialMode} onChange={(e)=>setEditorialMode(e.target.checked)} />
               <span>Editorial Mode</span>
             </label>
           </div>
@@ -293,28 +279,28 @@ const TaleWeaverStudio: React.FC<TaleWeaverStudioProps> = ({ userName, settings,
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-center justify-center">
             <div className="flex items-center gap-1">
               <span>Style</span>
-              <select title="Style" aria-label="Style" value={styleSel || ''} onChange={(e)=>setStyleSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[#e0c87a]/40 rounded px-1 py-0.5 text-[#e0c87a]">
+              <select title="Style" aria-label="Style" value={styleSel || ''} onChange={(e)=>setStyleSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[color:var(--wms-gold)]/40 rounded px-1 py-0.5 text-[var(--wms-gold)]">
                 <option value="">—</option>
                 {styleOptions.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div className="flex items-center gap-1">
               <span>Genre</span>
-              <select title="Genre" aria-label="Genre" value={genreSel || ''} onChange={(e)=>setGenreSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[#e0c87a]/40 rounded px-1 py-0.5 text-[#e0c87a]">
+              <select title="Genre" aria-label="Genre" value={genreSel || ''} onChange={(e)=>setGenreSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[color:var(--wms-gold)]/40 rounded px-1 py-0.5 text-[var(--wms-gold)]">
                 <option value="">—</option>
                 {genreOptions.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div className="flex items-center gap-1">
               <span>Role</span>
-              <select title="Role" aria-label="Role" value={roleSel || ''} onChange={(e)=>setRoleSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[#e0c87a]/40 rounded px-1 py-0.5 text-[#e0c87a]">
+              <select title="Role" aria-label="Role" value={roleSel || ''} onChange={(e)=>setRoleSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[color:var(--wms-gold)]/40 rounded px-1 py-0.5 text-[var(--wms-gold)]">
                 <option value="">—</option>
                 {roleOptions.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div className="flex items-center gap-1">
               <span>Writer</span>
-              <select title="Writer" aria-label="Writer" value={writerSel || ''} onChange={(e)=>setWriterSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[#e0c87a]/40 rounded px-1 py-0.5 text-[#e0c87a]">
+              <select title="Writer" aria-label="Writer" value={writerSel || ''} onChange={(e)=>setWriterSel(e.target.value||undefined)} className="w-full bg-[#141a20] border border-[color:var(--wms-gold)]/40 rounded px-1 py-0.5 text-[var(--wms-gold)]">
                 <option value="">—</option>
                 {writerOptions.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
@@ -324,12 +310,8 @@ const TaleWeaverStudio: React.FC<TaleWeaverStudioProps> = ({ userName, settings,
           {/* Right column (under Reviews) */}
           <div className="flex items-center gap-4 justify-end whitespace-nowrap">
             <label className="inline-flex items-center gap-2">
-              <input className="accent-[#e0c87a]" type="checkbox" checked={highlightEnabled} onChange={(e)=>setHighlightEnabled(e.target.checked)} />
+              <input className="accent-[var(--wms-gold)]" type="checkbox" checked={highlightEnabled} onChange={(e)=>setHighlightEnabled(e.target.checked)} />
               <span>Highlight Talia’s Edits</span>
-            </label>
-            <label className="inline-flex items-center gap-2" title="Experimental: Toggle Syncfusion DOCX editor">
-              <input className="accent-[#e0c87a]" type="checkbox" checked={useSyncfusionEditor} onChange={(e)=>setUseSyncfusionEditor(e.target.checked)} />
-              <span>Use Syncfusion Editor</span>
             </label>
             <HighlightColorPicker highlightColor={highlightColor} setHighlightColor={setHighlightColor} />
           </div>

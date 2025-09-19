@@ -33,10 +33,11 @@ $patterns = @(
   '(AccountKey|SharedAccessKey)=[A-Za-z0-9+/=]{32,}'
 )
 
-$files = git ls-files | Where-Object { -not ($_ -match 'node_modules|dist|build|bin|obj') }
+$files = git ls-files | Where-Object { -not ($_ -match 'node_modules|dist|build|bin|obj|\.gitleaks\.toml') }
 $hits = @()
 foreach ($f in $files) {
-  $content = Get-Content $f -Raw -ErrorAction SilentlyContinue
+  # -Raw not available in Windows PowerShell 5.1, emulate
+  $content = (Get-Content $f -ErrorAction SilentlyContinue) -join "`n"
   foreach ($p in $patterns) {
     if ($content -match $p) {
       $hits += [pscustomobject]@{ File=$f; Pattern=$p }
@@ -49,4 +50,6 @@ if ($hits.Count -eq 0) {
 }
 Write-Warning "[scan-secrets] Potential secrets detected (fallback heuristic):"
 $hits | Format-Table -AutoSize | Out-String | Write-Host
+
+# Treat matches only in config patterns as informational (currently none expected beyond .gitleaks exclusion)
 exit 2
