@@ -1,0 +1,48 @@
+name: Deploy with Workload Identity Federation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Required for OIDC authentication
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: 'projects/413404577713/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+        service_account: 'weaverstudiovault@weaver-studios.iam.gserviceaccount.com'
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Verify authentication
+      run: |
+        gcloud auth list
+        gcloud config list project
+
+    - name: Test Gemini API access
+      run: |
+        # Test that we can access Google Cloud APIs
+        gcloud projects describe weaver-studios
+
+    # Add your deployment steps here
+    - name: Deploy application
+      run: |
+        echo "✓ Authentication successful! Add your deployment commands here"
+        echo "Repository: wayneLytle/Weaver-Studio-Vault"
+        echo "Branch: ${{ github.ref_name }}"
+        # Example: deploy to Cloud Run, App Engine, etc.
