@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwansonAI API Tester</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        .header {
+            background: #007cba;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 { margin: 0; font-size: 2em; }
+        .header p { margin: 10px 0 0; opacity: 0.9; }
+        .container { 
+            background: white;
+            margin: 20px 0; 
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .container h2 { 
+            margin-top: 0; 
+            color: #333;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 10px;
+        }
+        textarea { 
+            width: 100%; 
+            height: 120px; 
+            margin: 10px 0; 
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        textarea:focus {
+            border-color: #007cba;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,124,186,0.1);
+        }
+        button { 
+            background: #007cba; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px;
+            cursor: pointer; 
+            margin: 5px; 
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        button:hover { 
+            background: #005a87; 
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .response { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid #dee2e6;
+            min-height: 60px;
+        }
+        .error { 
+            background: #ffe6e6; 
+            border-left: 4px solid #dc3545; 
+            color: #721c24;
+        }
+        .success { 
+            background: #e6ffe6; 
+            border-left: 4px solid #28a745; 
+            color: #155724;
+        }
+        .loading {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        pre {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .status-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #ddd;
+        }
+        .status-item.online { border-color: #28a745; }
+        .status-item.offline { border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 SwansonAI API Tester</h1>
+        <p>Test your OpenAI and BigQuery integrations</p>
+    </div>
+    
+    <div class="container">
+        <h2>🔧 Server Status</h2>
+        <button onclick="testServer()">Test Server Connection</button>
+        <div id="serverResponse" class="response">Click "Test Server Connection" to check if your backend is running...</div>
+    </div>
+
+    <div class="container">
+        <h2>🤖 OpenAI API Test</h2>
+        <textarea id="openaiPrompt" placeholder="Enter your prompt here...">Hello! Can you tell me a fun fact about data science?</textarea>
+        <br>
+        <button onclick="testOpenAI()">Test OpenAI</button>
+        <div id="openaiResponse" class="response">Enter a prompt above and click "Test OpenAI" to see the AI response...</div>
+    </div>
+
+    <div class="container">
+        <h2>📊 BigQuery Test</h2>
+        <textarea id="bigqueryQuery" placeholder="Enter your SQL query here...">SELECT 1 as test_number, 'Hello BigQuery!' as message, CURRENT_TIMESTAMP() as timestamp</textarea>
+        <br>
+        <button onclick="testBigQuery()">Test BigQuery</button>
+        <div id="bigqueryResponse" class="response">Enter a SQL query above and click "Test BigQuery" to see results...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+
+        async function testServer() {
+            const responseDiv = document.getElementById('serverResponse');
+            responseDiv.innerHTML = '<div class="loading">🔄 Testing server connection...</div>';
+            
+            try {
+                const response = await fetch(API_BASE);
+                const text = await response.text();
+                responseDiv.innerHTML = `<div class="success"><strong>✅ Server Status:</strong> ${text}<br><small>Server is running at ${API_BASE}</small></div>`;
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="error"><strong>❌ Connection Error:</strong> ${error.message}<br><small>Make sure your server is running with RUN.bat</small></div>`;
+            }
+        }
+
+        async function testOpenAI() {
+            const responseDiv = document.getElementById('openaiResponse');
+            const prompt = document.getElementById('openaiPrompt').value;
+            
+            if (!prompt.trim()) {
+                responseDiv.innerHTML = '<div class="error"><strong>❌ Error:</strong> Please enter a prompt</div>';
+                return;
+            }
+            
+            responseDiv.innerHTML = '<div class="loading">🤖 Asking OpenAI...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/openai`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `<div class="success"><strong>✅ OpenAI Response:</strong><br><br>${data.response}</div>`;
+                } else {
+                    responseDiv.innerHTML = `<div class="error"><strong>❌ OpenAI Error:</strong><br>${data.error}<br><small>Check your API key and billing status</small></div>`;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="error"><strong>❌ Network Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        async function testBigQuery() {
+            const responseDiv = document.getElementById('bigqueryResponse');
+            const query = document.getElementById('bigqueryQuery').value;
+            
+            if (!query.trim()) {
+                responseDiv.innerHTML = '<div class="error"><strong>❌ Error:</strong> Please enter a SQL query</div>';
+                return;
+            }
+            
+            responseDiv.innerHTML = '<div class="loading">📊 Executing BigQuery...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/bigquery`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const resultCount = data.rows ? data.rows.length : 0;
+                    responseDiv.innerHTML = `<div class="success"><strong>✅ BigQuery Results (${resultCount} rows):</strong><br><pre>${JSON.stringify(data.rows, null, 2)}</pre></div>`;
+                } else {
+                    responseDiv.innerHTML = `<div class="error"><strong>❌ BigQuery Error:</strong><br>${data.error}<br><small>Check your service account credentials and query syntax</small></div>`;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="error"><strong>❌ Network Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        // Test server on page load
+        window.onload = () => testServer();
+    </script>
+</body>
+</html>

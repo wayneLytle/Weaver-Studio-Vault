@@ -1,0 +1,526 @@
+/* General Body Styles */
+:root {
+  /* Google Grays for Dark Vibe */
+  --background-color: #121212; /* Very dark gray */
+  --main-content-bg: #1E1E1E; /* Lighter dark gray */
+  --chat-panel-bg: #252526; /* Slightly different dark gray */
+  --accent-panel-bg: #3C3C3C; /* For messages, inputs */
+  --text-color: #E0E0E0; /* Off-white for readability */
+  --text-color-secondary: #8A8A8A; /* Muted gray for placeholders */
+  --border-color: #383838;
+
+  /* Google Ecosystem Colors */
+  --google-blue: #4285F4;      /* Logo, primary actions, user message */
+  --google-green: #34A853;     /* Model message accents, Success states */
+  --android-green: #C6FF00;    /* Confirm, Send */
+  --firebase-yellow: #FFC400;  /* Point of interest, Upload */
+  --firebase-orange: #FF9100;  /* Archive (for future use) */
+  --firebase-red: #DD2C00;      /* Delete (for future use) */
+  --gemini-pink: #FDADEE;      /* Audit (for future use) */
+
+  /* Mapped to existing classes */
+  --primary-color: var(--google-blue);
+  --primary-hover-color: #699eff; /* Lighter blue for hover */
+  --input-bg: var(--accent-panel-bg);
+  --user-message-bg: var(--google-blue);
+  --user-message-text: #FFFFFF;
+  --model-message-bg: var(--accent-panel-bg);
+  --model-message-text: var(--text-color);
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* App Layout */
+#app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+#chat-panel {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  max-width: 450px;
+  min-width: 320px;
+  background-color: var(--chat-panel-bg);
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+}
+
+#chat-panel header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--chat-panel-bg);
+  flex-shrink: 0;
+}
+
+#chat-panel h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--google-blue);
+  font-weight: 600;
+}
+
+#chat-history {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Chat Messages */
+.message {
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  max-width: 85%;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.user-message {
+  background-color: var(--user-message-bg);
+  color: var(--user-message-text);
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+}
+
+.model-message {
+  background-color: var(--model-message-bg);
+  color: var(--model-message-text);
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+}
+
+.model-message.thinking {
+  font-style: italic;
+  color: var(--text-color-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  border: none;
+}
+
+.spinner {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border-left-color: var(--primary-color);
+  animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Chat Input Area */
+#chat-input-container {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--chat-panel-bg);
+  flex-shrink: 0;
+}
+
+#chat-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#chat-input {
+  flex-grow: 1;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#chat-input::placeholder {
+    color: var(--text-color-secondary);
+}
+
+#chat-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 25%, transparent);
+}
+
+#chat-input:disabled {
+    background-color: #2d2d2d;
+}
+
+#chat-form button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.2s, color 0.2s;
+}
+
+#chat-form button:hover {
+  transform: scale(1.1);
+}
+
+#upload-btn {
+    color: var(--firebase-yellow);
+}
+
+#send-btn {
+    color: var(--android-green);
+}
+
+
+/* Main Content Area */
+#main-content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  background-color: var(--main-content-bg);
+}
+
+#data-view.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--text-color-secondary);
+}
+
+#data-view h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+#initial-ai-response {
+    background-color: var(--accent-panel-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-top: 2rem;
+    max-width: 800px;
+    text-align: left;
+}
+
+/* Markdown Styles */
+.model-message p:last-child, #initial-ai-response p:last-child {
+    margin-bottom: 0;
+}
+
+.model-message pre,
+#initial-ai-response pre {
+    background-color: var(--background-color);
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+}
+
+.model-message code,
+#initial-ai-response code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 0.9em;
+    color: #f6f8fa;
+}
+
+.model-message pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.model-message :not(pre) > code {
+    background-color: #000000;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+}
+
+.model-message table,
+#initial-ai-response table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.model-message th,
+.model-message td,
+#initial-ai-response th,
+#initial-ai-response td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.model-message th,
+#initial-ai-response th {
+    background-color: #333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #app-container {
+    flex-direction: column;
+  }
+  #chat-panel {
+    width: 100%;
+    max-width: none;
+    height: 50%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  #main-content {
+    height: 50%;
+  }
+}
+
+/* Enhanced Chat Features */
+.agent-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.85em;
+  color: var(--text-color-secondary);
+}
+
+.agent-icon {
+  font-size: 1.2em;
+}
+
+.agent-name {
+  font-weight: 500;
+  color: var(--google-blue);
+}
+
+.message-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.message:hover .message-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-color-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: var(--accent-panel-bg);
+  color: var(--text-color);
+  border-color: var(--google-blue);
+}
+
+.thinking-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.thinking-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.thinking-dots {
+  display: inline-block;
+  width: 20px;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--google-blue) 0%, 
+    var(--google-blue) 33%, 
+    transparent 33%, 
+    transparent 66%, 
+    var(--google-blue) 66%);
+  background-size: 12px 4px;
+  animation: thinking-dots 1.5s infinite;
+}
+
+@keyframes thinking-dots {
+  0% { background-position: 0 0; }
+  100% { background-position: 12px 0; }
+}
+
+.notification {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Drag & Drop Styles */
+body.drag-over {
+  background: linear-gradient(45deg, var(--background-color), var(--main-content-bg));
+}
+
+body.drag-over::before {
+  content: "Drop files here to upload";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--google-blue);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  font-weight: 500;
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(66, 133, 244, 0.3);
+}
+
+/* Enhanced Send Button */
+#send-btn {
+  background: var(--android-green) !important;
+  color: var(--background-color) !important;
+  transition: all 0.2s ease;
+}
+
+#send-btn:hover {
+  background: #B2FF00 !important;
+  transform: scale(1.05);
+}
+
+#send-btn:disabled {
+  background: var(--text-color-secondary) !important;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Enhanced Upload Button */
+#upload-btn {
+  background: var(--firebase-yellow) !important;
+  color: var(--background-color) !important;
+}
+
+#upload-btn:hover {
+  background: #FFCA28 !important;
+  transform: scale(1.05);
+}
+
+/* File Upload Feedback */
+.file-upload-progress {
+  background: var(--accent-panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-upload-progress .progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.file-upload-progress .progress-fill {
+  height: 100%;
+  background: var(--google-blue);
+  transition: width 0.3s ease;
+}
+
+/* Data Viewer Enhancements */
+#data-view {
+  padding: 20px;
+  background: var(--main-content-bg);
+  overflow-y: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: var(--chat-panel-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+  background: var(--accent-panel-bg);
+  font-weight: 600;
+  color: var(--google-blue);
+}
+
+.data-table tr:hover {
+  background: var(--accent-panel-bg);
+}
+
+.insight-card {
+  background: var(--chat-panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  border-left: 4px solid var(--google-blue);
+}
+
+.insight-card h3 {
+  margin: 0 0 8px;
+  color: var(--google-blue);
+}
+
+.chart-container {
+  background: var(--chat-panel-bg);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid var(--border-color);
+}
