@@ -72,6 +72,51 @@ body {
   font-weight: 600;
 }
 
+/* Model Selector */
+#model-selector {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#model-selector select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  padding: 0.5rem;
+  font-family: var(--font-family);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+#model-selector select:hover {
+  border-color: var(--google-blue);
+}
+
+#model-selector select:focus {
+  outline: none;
+  border-color: var(--google-blue);
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+#model-selector select option {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  padding: 0.5rem;
+}
+
+/* Engine-specific styling */
+#engine-select:not([value="gemini"]) ~ #model-select option[data-engine="gemini"] {
+  display: none;
+}
+
+#engine-select[value="gemini"] ~ #model-select option[data-engine="openai"] {
+  display: none;
+}
+
 #chat-history {
   flex-grow: 1;
   overflow-y: auto;

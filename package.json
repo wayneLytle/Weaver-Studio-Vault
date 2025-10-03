@@ -11,9 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/aiplatform": "^5.7.0",
     "@google-cloud/bigquery": "^8.1.1",
+    "@google-cloud/vertexai": "^1.10.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "google-auth-library": "^10.4.0",
     "marked": "^16.3.0",
     "openai": "^6.1.0"
   },

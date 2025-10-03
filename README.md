@@ -19,6 +19,12 @@ SwansonAI is a sophisticated, human-in-the-loop data analysis studio that levera
 - **VizCrafter** 📊 - Visualization Agent
 - **ReportSmith** 📄 - PDF Report Generator
 
+### 🚀 Multi-Model AI Support
+- **OpenAI Models**: GPT-4O, GPT-4O Mini, GPT-4 Turbo, GPT-3.5 Turbo
+- **Google Gemini Models**: Gemini 2.5 Pro, Gemini 2.5 Flash, Gemini 2.0 Flash, Gemini 1.5 Pro/Flash
+- **Workload Identity Federation** for secure Google Cloud access
+- **Real-time model switching** in the chat interface
+
 ### 💬 World-Class Chat Interface
 - ✅ **Real-time streaming** responses
 - ✅ **File upload** (CSV, JSON, Excel) via drag & drop

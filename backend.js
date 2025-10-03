@@ -1,6 +1,8 @@
 const express = require('express');
 const { BigQuery } = require('@google-cloud/bigquery');
 const { OpenAI } = require('openai');
+const { GoogleAuth } = require('google-auth-library');
+const { VertexAI } = require('@google-cloud/vertexai');
 const path = require('path');
 require('dotenv').config();
 
@@ -13,6 +15,51 @@ app.use(express.json());
 // Initialize services
 const bigquery = new BigQuery();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Google Cloud Authentication setup (supports both local dev and WIF)
+async function getGoogleAuth() {
+  const scopes = ['https://www.googleapis.com/auth/cloud-platform'];
+  
+  // Check if we have service account JSON (local dev or CI with JSON)
+  const serviceAccountJson = process.env.GEMINI_SERVICE_ACCOUNT_JSON;
+  if (serviceAccountJson) {
+    return new GoogleAuth({
+      credentials: JSON.parse(serviceAccountJson),
+      scopes
+    });
+  }
+  
+  // Use default auth (Workload Identity Federation in CI, or GOOGLE_APPLICATION_CREDENTIALS locally)
+  return new GoogleAuth({ scopes });
+}
+
+// Get access token for Google Cloud APIs
+async function getGoogleAccessToken() {
+  try {
+    const auth = await getGoogleAuth();
+    const client = await auth.getClient();
+    const token = await client.getAccessToken();
+    
+    if (!token || !token.token) {
+      throw new Error('Failed to obtain Google access token');
+    }
+    
+    return token.token;
+  } catch (error) {
+    console.error('Google Auth error:', error);
+    throw error;
+  }
+}
+
+// Initialize Vertex AI (for Gemini models)
+let vertexAI;
+try {
+  const projectId = process.env.GOOGLE_PROJECT_ID || 'weaver-studios';
+  const location = process.env.GOOGLE_LOCATION || 'us-central1';
+  vertexAI = new VertexAI({ project: projectId, location: location });
+} catch (error) {
+  console.warn('Vertex AI initialization failed:', error.message);
+}
 
 // Routes
 app.get('/', (req, res) => {
@@ -37,7 +84,20 @@ app.get('/api/status', (req, res) => {
       main: '/',
       apiTester: '/test',
       openai: '/openai',
-      bigquery: '/bigquery'
+      bigquery: '/bigquery',
+      gemini: '/api/gemini',
+      chat: '/api/chat (supports both OpenAI and Gemini)',
+      models: {
+        openai: '/api/openai/models',
+        gemini: '/api/gemini/models'
+      }
+    },
+    configuration: {
+      googleProjectId: process.env.GOOGLE_PROJECT_ID || 'weaver-studios',
+      googleLocation: process.env.GOOGLE_LOCATION || 'us-central1',
+      authMethod: process.env.GEMINI_SERVICE_ACCOUNT_JSON ? 'Service Account JSON' : 
+                  process.env.GOOGLE_APPLICATION_CREDENTIALS ? 'Credentials File' : 
+                  'Workload Identity Federation'
     }
   });
 });
@@ -56,6 +116,124 @@ app.get('/api/openai/models', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Gemini models endpoint
+app.get('/api/gemini/models', async (req, res) => {
+  try {
+    // Available Gemini models
+    const geminiModels = [
+      { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Latest high-performance model' },
+      { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', description: 'Fast and efficient model' },
+      { id: 'gemini-2.0-flash-001', name: 'Gemini 2.0 Flash 001', description: 'Stable flash model' },
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Production-ready pro model' },
+      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Production-ready flash model' }
+    ];
+    
+    res.json({ 
+      models: geminiModels,
+      projectId: process.env.GOOGLE_PROJECT_ID || 'weaver-studios',
+      location: process.env.GOOGLE_LOCATION || 'us-central1'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Gemini chat endpoint
+app.post('/api/gemini/chat', async (req, res) => {
+  try {
+    const { messages, model = 'gemini-2.5-flash', stream = false } = req.body;
+    
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Messages array is required' });
+    }
+
+    const projectId = process.env.GOOGLE_PROJECT_ID || 'weaver-studios';
+    const location = process.env.GOOGLE_LOCATION || 'us-central1';
+    
+    if (!projectId) {
+      return res.status(500).json({ error: 'GOOGLE_PROJECT_ID not configured' });
+    }
+
+    // Get access token
+    const token = await getGoogleAccessToken();
+    
+    // Convert messages to Gemini format
+    const contents = messages
+      .filter(msg => msg.role !== 'system')
+      .map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+      }));
+
+    // Add system message if present
+    const systemMessage = messages.find(msg => msg.role === 'system');
+    
+    const requestBody = {
+      contents,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+        topP: 0.8,
+        topK: 40
+      }
+    };
+
+    if (systemMessage) {
+      requestBody.systemInstruction = {
+        parts: [{ text: systemMessage.content }]
+      };
+    }
+
+    const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Gemini API error:', response.status, errorText);
+      return res.status(response.status).json({ 
+        error: `Gemini API error: ${response.status}`,
+        details: errorText
+      });
+    }
+
+    const data = await response.json();
+    
+    // Extract the response text
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+    
+    res.json({
+      content,
+      model,
+      usage: {
+        prompt_tokens: requestBody.contents.reduce((sum, c) => sum + c.parts[0].text.length, 0),
+        completion_tokens: content.length,
+        total_tokens: requestBody.contents.reduce((sum, c) => sum + c.parts[0].text.length, 0) + content.length
+      },
+      metadata: {
+        model,
+        projectId,
+        location,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Gemini chat error:', error);
+    res.status(500).json({ 
+      error: error.message,
+      details: 'Failed to process Gemini chat request'
+    });
   }
 });
 
@@ -275,10 +453,10 @@ Format in clear, professional language.`
   }
 };
 
-// Enhanced chat endpoint with agent routing
+// Enhanced chat endpoint with agent routing and multi-model support
 app.post('/api/chat', async (req, res) => {
   try {
-    const { messages, model = 'gpt-3.5-turbo', agent = 'J.B.' } = req.body;
+    const { messages, model = 'gpt-3.5-turbo', agent = 'J.B.', engine = 'openai' } = req.body;
     
     // Get agent configuration
     const agentConfig = agents[agent] || agents['J.B.'];
@@ -301,25 +479,105 @@ app.post('/api/chat', async (req, res) => {
     });
 
     // Send agent info first
-    res.write(`data: ${JSON.stringify({ agent: agent, role: agentConfig.role })}\n\n`);
+    res.write(`data: ${JSON.stringify({ agent: agent, role: agentConfig.role, engine: engine, model: model })}\n\n`);
 
-    const stream = await openai.chat.completions.create({
-      model,
-      messages: fullMessages,
-      stream: true,
-      temperature: 0.7,
-    });
+    if (engine === 'gemini') {
+      // Use Gemini API
+      try {
+        const projectId = process.env.GOOGLE_PROJECT_ID || 'weaver-studios';
+        const location = process.env.GOOGLE_LOCATION || 'us-central1';
+        
+        if (!projectId) {
+          throw new Error('GOOGLE_PROJECT_ID not configured');
+        }
 
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content || '';
-      if (content) {
-        res.write(`data: ${JSON.stringify({ content, agent })}\n\n`);
+        // Get access token
+        const token = await getGoogleAccessToken();
+        
+        // Convert messages to Gemini format
+        const contents = fullMessages
+          .filter(msg => msg.role !== 'system')
+          .map(msg => ({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+          }));
+
+        const requestBody = {
+          contents,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+            topP: 0.8,
+            topK: 40
+          }
+        };
+
+        // Add system message as system instruction
+        const sysMsg = fullMessages.find(msg => msg.role === 'system');
+        if (sysMsg) {
+          requestBody.systemInstruction = {
+            parts: [{ text: sysMsg.content }]
+          };
+        }
+
+        const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`;
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        const content = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+        
+        // Simulate streaming for Gemini (since it doesn't support streaming yet)
+        const words = content.split(' ');
+        for (let i = 0; i < words.length; i++) {
+          const chunk = words[i] + (i < words.length - 1 ? ' ' : '');
+          res.write(`data: ${JSON.stringify({ content: chunk, agent, engine })}\n\n`);
+          // Small delay to simulate streaming
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        
+      } catch (error) {
+        console.error('Gemini streaming error:', error);
+        res.write(`data: ${JSON.stringify({ error: `Gemini error: ${error.message}` })}\n\n`);
+      }
+    } else {
+      // Use OpenAI API (default)
+      try {
+        const stream = await openai.chat.completions.create({
+          model,
+          messages: fullMessages,
+          stream: true,
+          temperature: 0.7,
+        });
+
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            res.write(`data: ${JSON.stringify({ content, agent, engine })}\n\n`);
+          }
+        }
+      } catch (error) {
+        console.error('OpenAI streaming error:', error);
+        res.write(`data: ${JSON.stringify({ error: `OpenAI error: ${error.message}` })}\n\n`);
       }
     }
 
     res.write('data: [DONE]\n\n');
     res.end();
   } catch (error) {
+    console.error('Chat endpoint error:', error);
     res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
     res.end();
   }

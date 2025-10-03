@@ -12,6 +12,11 @@ const uploadButton = document.getElementById('upload-btn')!;
 const sendButton = document.getElementById('send-btn') as HTMLButtonElement;
 const dataView = document.getElementById('data-view')!;
 
+// Model selector elements
+const engineSelect = document.getElementById('engine-select') as HTMLSelectElement;
+const modelSelect = document.getElementById('model-select') as HTMLSelectElement;
+const agentSelect = document.getElementById('agent-select') as HTMLSelectElement;
+
 // Create file input for uploads
 const fileInput = document.createElement('input');
 fileInput.type = 'file';
@@ -38,6 +43,28 @@ interface DataResult {
 let isGenerating = false;
 let chatHistory: ChatMessage[] = [];
 let currentConversationId = Date.now().toString();
+
+// Model configuration
+const modelOptions = {
+    openai: [
+        { value: 'gpt-4o', label: 'GPT-4O' },
+        { value: 'gpt-4o-mini', label: 'GPT-4O Mini' },
+        { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+        { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' }
+    ],
+    gemini: [
+        { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+        { value: 'gemini-2.0-flash-001', label: 'Gemini 2.0 Flash 001' },
+        { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+        { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' }
+    ]
+};
+
+// Current selections
+let currentEngine = 'openai';
+let currentModel = 'gpt-3.5-turbo';
+let currentAgent = 'J.B.';
 
 // --- Utility Functions ---
 
@@ -93,6 +120,68 @@ function formatFileSize(bytes: number): string {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// --- Model Selector Functions ---
+
+/**
+ * Initialize model selector dropdowns
+ */
+function initializeModelSelectors(): void {
+    // Populate model options based on engine
+    updateModelOptions();
+    
+    // Set initial values
+    engineSelect.value = currentEngine;
+    modelSelect.value = currentModel;
+    agentSelect.value = currentAgent;
+    
+    // Add event listeners
+    engineSelect.addEventListener('change', () => {
+        currentEngine = engineSelect.value as 'openai' | 'gemini';
+        updateModelOptions();
+        // Set default model for the engine
+        const engineOptions = modelOptions[currentEngine as keyof typeof modelOptions];
+        currentModel = engineOptions[0].value;
+        modelSelect.value = currentModel;
+    });
+    
+    modelSelect.addEventListener('change', () => {
+        currentModel = modelSelect.value;
+    });
+    
+    agentSelect.addEventListener('change', () => {
+        currentAgent = agentSelect.value;
+    });
+}
+
+/**
+ * Update model options based on selected engine
+ */
+function updateModelOptions(): void {
+    // Clear existing options
+    modelSelect.innerHTML = '';
+    
+    // Add options for current engine
+    const options = modelOptions[currentEngine as keyof typeof modelOptions];
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.label;
+        optionElement.setAttribute('data-engine', currentEngine);
+        modelSelect.appendChild(optionElement);
+    });
+}
+
+/**
+ * Get current model configuration
+ */
+function getCurrentModelConfig() {
+    return {
+        engine: currentEngine,
+        model: currentModel,
+        agent: currentAgent
+    };
 }
 
 // --- Chat Functions ---
@@ -257,6 +346,9 @@ async function sendMessage(message: string, files?: FileList) {
             content: msg.content
         }));
 
+        // Get current model configuration
+        const config = getCurrentModelConfig();
+        
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -264,8 +356,9 @@ async function sendMessage(message: string, files?: FileList) {
             },
             body: JSON.stringify({ 
                 messages,
-                model: 'gpt-3.5-turbo',
-                agent: selectedAgent,
+                model: config.model,
+                engine: config.engine,
+                agent: config.agent || selectedAgent,
                 conversationId: currentConversationId
             }),
         });
@@ -828,6 +921,7 @@ function convertToCSV(data: any[]): string {
 }
 
 // --- Initialize App ---
+initializeModelSelectors();
 displayInitialGreeting();
 
 // Add drag & drop support
